@@ -17,3 +17,5 @@ spool/
 coverage/
 *.log
 contracts/pending/
+# Local consumer request bodies can contain passwords.
+login.json

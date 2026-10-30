@@ -1,6 +1,6 @@
 # Seguridad y futuro despliegue Ubuntu 24.04
 
-Esta guía prepara una decisión futura. No se han creado ni modificado dominios, Nginx, servicios systemd/Supervisor, reglas de firewall ni recursos del VPS.
+Esta guía prepara el despliegue. La configuración del dominio solicitado y Nginx está en [activación del dominio](domain.md). No se han modificado DNS, servicios systemd/Supervisor, reglas de firewall ni recursos del VPS.
 
 ## Revisión antes de producción
 
@@ -19,7 +19,7 @@ Preparar un directorio de release, instalar `composer install --no-dev --prefer-
 
 Crear un usuario de runtime MySQL con SELECT/INSERT/UPDATE mínimos sobre las tablas necesarias y un usuario de migración separado con DDL. Publicaciones y staging son inmutables a través de la API; reducir también DELETE/UPDATE directos al mínimo operativo. APP_KEY debe estar en un gestor o archivo fuera de la raíz pública, con backup separado. MySQL en loopback o red privada; TLS con verificación si cruza red.
 
-Tras una aprobación concreta, el administrador debe apuntar la raíz web exclusivamente a `backend/public`, habilitar HTTPS con certificado válido, denegar archivos ocultos/backups y establecer límite de body compatible (16 MiB global; 2 MiB canónicos por lote) y timeouts medidos. Esta entrega no incluye un archivo Nginx porque su creación está expresamente fuera de esta fase. Si hay proxy TLS, configurar únicamente IPs de proxy conocidas; no confiar en X-Forwarded-Proto de clientes arbitrarios. Validar que Laravel ve la solicitud como HTTPS.
+El administrador debe apuntar la raíz web exclusivamente a `backend/public`, habilitar HTTPS con certificado válido, denegar archivos ocultos/backups y establecer límite de body compatible (16 MiB global; 2 MiB canónicos por lote) y timeouts medidos. Se incluye la plantilla `deploy/nginx/api-employeedb.ccruces.com.conf` por solicitud del usuario. Si hay proxy TLS, configurar únicamente IPs de proxy conocidas; no confiar en X-Forwarded-Proto de clientes arbitrarios. Validar que Laravel ve la solicitud como HTTPS.
 
 Hacer backup antes de ejecutar migraciones aditivas. Ejecutarlas sólo sobre la base nueva aprobada usando la cuenta de migración, y comprobar integridad, índices y ruta activa antes de exponer lectores. No ejecutar `migrate:fresh` ni instalar fixtures en producción. La aprobación/importación administrativa de esquemas productivos requiere un procedimiento de cambio adicional; no existe endpoint para que un agente se autoautorice.
 

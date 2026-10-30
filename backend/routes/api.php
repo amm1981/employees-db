@@ -1,8 +1,18 @@
 <?php
 
+use App\Http\Controllers\ConsumerAuthController;
 use App\Http\Controllers\DatasetController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\SyncController;
 use Illuminate\Support\Facades\Route;
+
+Route::prefix('v1')->group(function () {
+    Route::post('auth/login', [ConsumerAuthController::class, 'login'])->middleware('throttle:consumer-login');
+    Route::middleware(['consumer.token', 'throttle:consumer-read'])->group(function () {
+        Route::post('auth/logout', [ConsumerAuthController::class, 'logout']);
+        Route::get('employees', [EmployeeController::class, 'index']);
+    });
+});
 
 Route::prefix('v1')->middleware(['service.token', 'throttle:120,1'])->group(function () {
     Route::post('sync/runs', [SyncController::class, 'create']);

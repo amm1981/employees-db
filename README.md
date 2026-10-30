@@ -2,6 +2,8 @@
 
 GET-Employes: primera versión local del agente Windows y la API Laravel 12. Extrae **capturas de modificaciones observadas en una ventana móvil**; no representa el padrón completo. No elimina trabajadores ausentes ni deduplica filas legítimas.
 
+Dominio configurado: **https://api-employeedb.ccruces.com**. La API de consumo ofrece `POST /api/v1/auth/login` con body `username`/`password`, `GET /api/v1/employees?dataset=casablanca-altas-bajas` con token Bearer y `POST /api/v1/auth/logout`. Devuelve sólo modificaciones de las últimas 72 horas. Ver [cuentas, ejemplos y reglas de la API](docs/api/consumer-api.md), [OpenAPI](docs/api/openapi.yaml) y [activación del dominio en el VPS](docs/operations/domain.md).
+
 La carpeta de trabajo es `C:\Users\AlonsoMendoza\Documents\Dev\GET-Employes`. La extracción real y la publicación productiva permanecen bloqueadas por aprobación. CASABLANCA tiene un candidato de esquema observado desde SSMS, pendiente de adaptar y aprobar; el esquema real de Diamond Bridge sigue pendiente. Diamond Bridge conserva `cod_empresa = NULL` y no está habilitado para producción.
 
 ## Inicio local en Windows

@@ -6,6 +6,7 @@ use App\Sync\Access;
 use App\Sync\Canonical;
 use App\Sync\Contract;
 use App\Sync\RunIntegrity;
+use App\Sync\WorkerTime;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -126,7 +127,7 @@ final class SyncController extends Controller
             $inserts = [];
             foreach ($b['rows'] as $n => $row) {
                 Contract::row($row, $schema);
-                $inserts[] = ['run_id' => $run->id, 'ordinal' => $b['first'] + $n, 'batch_number' => $number, 'payload' => Crypt::encryptString(Canonical::encode($row)), 'hash' => Canonical::hash($row)];
+                $inserts[] = ['run_id' => $run->id, 'ordinal' => $b['first'] + $n, 'batch_number' => $number, 'payload' => Crypt::encryptString(Canonical::encode($row)), 'hash' => Canonical::hash($row), 'worker_changed_at' => WorkerTime::latest($row, $schema), 'worker_time_zone' => config('consumer.source_timezone')];
             }
             foreach (array_chunk($inserts, 100) as $chunk) {
                 DB::table('staging_records')->insert($chunk);

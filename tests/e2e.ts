@@ -43,6 +43,8 @@ const env = {
   SESSION_DRIVER: "array",
   LOG_CHANNEL: "single",
   SYNC_ALLOW_FIXTURES: "true",
+  SQL_SOURCE_TIMEZONE: "UTC",
+  API_CONSUMER_PASSWORD: randomBytes(32).toString("hex"),
 };
 const run = (args: string[]) =>
   execFileSync(php, args, {
@@ -56,6 +58,10 @@ run([
   "artisan",
   "fixtures:setup",
   "--secrets-file=" + path.join(dir, "tokens.json"),
+]);
+run([
+  "artisan", "consumer:create", "e2e.reader",
+  "--dataset=casablanca-altas-bajas", "--simulation", "--no-interaction",
 ]);
 const port = await new Promise<number>((resolve) => {
   const server = net.createServer();
@@ -243,6 +249,33 @@ try {
       "recovery_complete",
     ),
   );
+  // Exercise the actual JSON login and consumer window through the HTTP server.
+  const recentRows = fixtureRows();
+  const recent = new Date(Date.now() - 24 * 3600_000).toISOString().replace(/Z$/, "");
+  recentRows[0]![36] = recent;
+  recentRows[1]![36] = recent;
+  recentRows[2]![36] = new Date(Date.now() - 96 * 3600_000).toISOString().replace(/Z$/, "");
+  const consumerRun = await extract(spool, c, fixtureSource(false, recentRows), "fixture-agent", true);
+  await t.send(spool, consumerRun.runId, c, true);
+  const login = await read("/auth/login", "", "POST", {
+    username: "e2e.reader", password: env.API_CONSUMER_PASSWORD,
+  });
+  assert.equal(login.token_type, "Bearer");
+  assert.equal(login.expires_in, 3600);
+  const employees = await read(`/employees?dataset=${c.id}`, login.access_token);
+  assert.equal(employees.total, 2);
+  assert.equal(employees.window.hours, 72);
+  assert.deepEqual(employees.records[0].values, employees.records[1].values);
+  assert.equal(employees.records[0].values.cod_trabajador, "00001234");
+  assert.equal(Object.keys(employees.records[0].values).length, 37);
+  const logout = await fetch(baseUrl + "/api/v1/auth/logout", {
+    method: "POST", headers: { Authorization: "Bearer " + login.access_token },
+  });
+  assert.equal(logout.status, 204);
+  const expired = await fetch(baseUrl + `/api/v1/employees?dataset=${c.id}`, {
+    headers: { Authorization: "Bearer " + login.access_token },
+  });
+  assert.equal(expired.status, 401);
   console.log(
     JSON.stringify(
       {
@@ -257,6 +290,7 @@ try {
           "Diamond company null and dataset isolation",
           "anonymous access denied",
           "compiled CLI sync, resume, status and recovery",
+          "JSON login → consumer Bearer token → last 72 hours → logout revocation",
         ],
         runs: [m.runId, next.runId, dm.runId],
       },

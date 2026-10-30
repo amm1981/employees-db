@@ -1,0 +1,475 @@
+openapi: 3.0.3
+info:
+  title: employees-db Consumer API
+  version: 1.0.0
+  description: JSON login and read-only access to published worker changes from
+    the last 72 hours. Original field names, text values, nulls and duplicate
+    rows are preserved. No business stored procedure is executed by a read
+    request.
+servers:
+  - url: https://api-employeedb.ccruces.com/api/v1
+  - url: http://127.0.0.1:8000/api/v1
+    description: Local development only
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      summary: Authenticate using username and password in a JSON body
+      description: 5 attempts/minute per username and 20/minute per IP. No query
+        parameters. No public account registration.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  maxLength: 80
+                  pattern: ^[a-z0-9][a-z0-9._-]*$
+                password:
+                  type: string
+                  format: password
+                  maxLength: 72
+                  description: Maximum 72 UTF-8 bytes; never log this value.
+      responses:
+        "200":
+          description: Success
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store, private
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        "400":
+          description: HTTPS required or host denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Invalid credentials or disabled account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "415":
+          description: JSON body required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Revoke the current token
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Token revoked
+        "401":
+          description: Invalid, expired or revoked token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /employees:
+    get:
+      operationId: employees
+      summary: Read published worker changes from the last 72 hours
+      description: Latest publication by default. Only the assigned dataset and
+        simulation/production environment are accessible. Latest non-null
+        updpersonal/updagenda/updu must be within [now minus 72 hours, now],
+        inclusive. All-null and future dates are excluded. SQL dates without
+        offsets use SQL_SOURCE_TIMEZONE (default America/Lima). The window
+        advances with every request; publicationId pins the capture but not the
+        clock.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: dataset
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 80
+          example: casablanca-altas-bajas
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+        - name: publicationId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Pin a publication from the same dataset/environment between pages.
+      responses:
+        "200":
+          description: Success
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store, private
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employees"
+        "400":
+          description: HTTPS required or host denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Invalid, expired or revoked token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Dataset denied or fixtures disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: No matching publication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Payload integrity failure or WORKER_INDEX_PENDING; run workers:index
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Invalid or unsupported query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: access_token returned by POST /auth/login. It cannot ingest,
+        publish, roll back, or read administrative history.
+  responses:
+    RateLimited:
+      description: Too many requests
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds until retry
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+          properties:
+            code:
+              type: string
+              example: TOKEN_INVALID
+    Token:
+      type: object
+      required:
+        - access_token
+        - token_type
+        - expires_in
+        - expires_at
+      properties:
+        access_token:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          description: Store securely; returned only at login.
+        token_type:
+          type: string
+          enum:
+            - Bearer
+        expires_in:
+          type: integer
+          example: 3600
+        expires_at:
+          type: string
+          format: date-time
+    WorkerValues:
+      type: object
+      additionalProperties: false
+      required:
+        - cod_empresa
+        - cod_categoria
+        - cod_trabajador
+        - apellido_pat
+        - apellido_mat
+        - Nombres
+        - tipo_documento
+        - email
+        - sexo
+        - ID_EstadoCivil
+        - cod_nacionalidad
+        - nacionalidad
+        - tipo_trabajador
+        - reloj
+        - tipo_asistencia
+        - Fnacimiento
+        - cod_proyecto
+        - area
+        - area_desc
+        - ccosto
+        - uni_negocio
+        - planilla
+        - id_planilla
+        - planilla_desc
+        - fotocheck
+        - cod_sede
+        - sede
+        - cod_cargo
+        - cargo
+        - cod_funcion
+        - funcion
+        - fingreso
+        - fcese
+        - estado
+        - updpersonal
+        - updagenda
+        - updu
+      properties:
+        cod_empresa:
+          type: string
+          nullable: true
+        cod_categoria:
+          type: string
+          nullable: true
+        cod_trabajador:
+          type: string
+          nullable: true
+        apellido_pat:
+          type: string
+          nullable: true
+        apellido_mat:
+          type: string
+          nullable: true
+        Nombres:
+          type: string
+          nullable: true
+        tipo_documento:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        sexo:
+          type: string
+          nullable: true
+        ID_EstadoCivil:
+          type: string
+          nullable: true
+        cod_nacionalidad:
+          type: string
+          nullable: true
+        nacionalidad:
+          type: string
+          nullable: true
+        tipo_trabajador:
+          type: string
+          nullable: true
+        reloj:
+          type: string
+          nullable: true
+        tipo_asistencia:
+          type: string
+          nullable: true
+        Fnacimiento:
+          type: string
+          nullable: true
+        cod_proyecto:
+          type: string
+          nullable: true
+        area:
+          type: string
+          nullable: true
+        area_desc:
+          type: string
+          nullable: true
+        ccosto:
+          type: string
+          nullable: true
+        uni_negocio:
+          type: string
+          nullable: true
+        planilla:
+          type: string
+          nullable: true
+        id_planilla:
+          type: string
+          nullable: true
+        planilla_desc:
+          type: string
+          nullable: true
+        fotocheck:
+          type: string
+          nullable: true
+        cod_sede:
+          type: string
+          nullable: true
+        sede:
+          type: string
+          nullable: true
+        cod_cargo:
+          type: string
+          nullable: true
+        cargo:
+          type: string
+          nullable: true
+        cod_funcion:
+          type: string
+          nullable: true
+        funcion:
+          type: string
+          nullable: true
+        fingreso:
+          type: string
+          nullable: true
+        fcese:
+          type: string
+          nullable: true
+        estado:
+          type: string
+          nullable: true
+        updpersonal:
+          type: string
+          nullable: true
+        updagenda:
+          type: string
+          nullable: true
+        updu:
+          type: string
+          nullable: true
+    Employees:
+      type: object
+      required:
+        - datasetId
+        - publicationId
+        - sourceCompletedAt
+        - mode
+        - exhaustive
+        - window
+        - page
+        - pageSize
+        - total
+        - records
+      properties:
+        datasetId:
+          type: string
+        publicationId:
+          type: string
+          format: uuid
+        sourceCompletedAt:
+          type: string
+          description: Completion time of the stored source capture, in UTC.
+        mode:
+          type: string
+          enum:
+            - ROLLING_WINDOW_CAPTURE
+        exhaustive:
+          type: boolean
+          enum:
+            - false
+        window:
+          type: object
+          required:
+            - hours
+            - from
+            - to
+            - sourceTimezone
+            - fields
+          properties:
+            hours:
+              type: integer
+              enum:
+                - 72
+            from:
+              type: string
+              format: date-time
+            to:
+              type: string
+              format: date-time
+            sourceTimezone:
+              type: string
+              example: America/Lima
+            fields:
+              type: array
+              items:
+                type: string
+              example:
+                - updpersonal
+                - updagenda
+                - updu
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+          description: Filtered rows; duplicate workers are not collapsed.
+        records:
+          type: array
+          items:
+            type: object
+            required:
+              - ordinal
+              - values
+            properties:
+              ordinal:
+                type: integer
+                description: Row position in this publication, not an employee identifier.
+              values:
+                $ref: "#/components/schemas/WorkerValues"

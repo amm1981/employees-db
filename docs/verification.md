@@ -1,5 +1,18 @@
 # Verificación de primera fase
 
+## Ampliación del 30 de octubre de 2026
+
+Se configuró `api-employeedb.ccruces.com` en las plantillas y se añadió login JSON, tokens de consumo revocables, consulta filtrada a las últimas 72 horas y comandos de aprovisionamiento/indexación. No se cambiaron DNS ni servidores remotos.
+
+- Backend: 34 pruebas, 323 assertions, aprobadas con PHP 8.3.28 tanto en SQLite como en MySQL 8.4.7/InnoDB dedicado. Incluyen 12 pruebas de la API de consumo: autenticación, aislamiento de tokens/empresas/entornos, revocación, HTTPS/host, límites, paginación, indexación y bordes temporales de 100 ns.
+- E2E HTTP aprobado: login con JSON, emisión de token, consulta con duplicados y exclusión de filas de hace cuatro días, cierre de sesión y rechazo del token revocado; también se mantienen las comprobaciones anteriores de sincronización, rollback y recuperación.
+- Agente: validación y compilación aprobadas; 51 pruebas aprobadas.
+- OpenAPI: YAML leído y referencias internas verificadas, con tres rutas y 37 campos. La plantilla Nginx debe validarse con `nginx -t` en el VPS después de instalar certificados; Nginx no está disponible en esta estación Windows.
+
+Los valores y credenciales usados para verificar el flujo son sintéticos. Las restricciones pendientes del adaptador SQL real no se aprobaron ni se desactivaron al añadir esta API.
+
+## Entrega inicial
+
 Fecha de entrega: 26 de octubre de 2026 (America/Lima). Directorio inicialmente vacío; Git inicializado sin commits ni envío a remotos. No había archivos de proyecto que preservar.
 
 ## Entorno utilizado
