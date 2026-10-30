@@ -1,0 +1,32 @@
+{
+  "name": "get-employes",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "agent"
+  ],
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "overrides": {
+    "@azure/msal-node": "7.1.1"
+  },
+  "scripts": {
+    "build": "npm run build -w agent",
+    "validate": "npm run validate -w agent",
+    "test": "npm run test -w agent",
+    "test:backend": "node scripts/test-backend.mjs",
+    "test:e2e": "tsx tests/e2e.ts",
+    "test:mysql": "tsx tests/mysql.ts",
+    "sync": "tsx agent/src/cli.ts sync",
+    "status": "tsx agent/src/cli.ts status",
+    "resume": "tsx agent/src/cli.ts resume",
+    "recover": "tsx agent/src/cli.ts recover",
+    "inspect": "tsx agent/src/cli.ts inspect",
+    "unlock": "tsx agent/src/cli.ts unlock"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10",
+    "tsx": "^4.20.0"
+  }
+}

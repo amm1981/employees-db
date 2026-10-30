@@ -1,0 +1,541 @@
+{
+  "status": "pending",
+  "inspectionId": "8f6a68c4-f71e-436d-99e2-ea1c45a4a45b",
+  "inspectedAt": "2026-10-29T20:52:37.198Z",
+  "integrationId": "casablanca-altas-bajas",
+  "source": {
+    "database": "MarcacionesCB",
+    "procedure": "[MarcacionesCB].[dbo].[spListarAltas_Bajas_Csb]",
+    "method": "sys.dm_exec_describe_first_result_set_for_object",
+    "inputHash": "33696fc72e1c2e15978ae86cd79ac199f1b76f1d9fb579162d67dc471090ecb6"
+  },
+  "schemaHash": "e30fd773f9ccc5d0db7c60da4b0adfe19ff7db526e587ec79df8b390a8a21ecd",
+  "schema": {
+    "version": "candidate-1",
+    "columns": [
+      {
+        "name": "cod_empresa",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 2,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "cod_categoria",
+        "sqlType": "int",
+        "nullable": true,
+        "maxLength": 4,
+        "precision": 10,
+        "scale": 0,
+        "collation": null
+      },
+      {
+        "name": "cod_trabajador",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 20,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "apellido_pat",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "apellido_mat",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "Nombres",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 101,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "tipo_documento",
+        "sqlType": "int",
+        "nullable": false,
+        "maxLength": 4,
+        "precision": 10,
+        "scale": 0,
+        "collation": null
+      },
+      {
+        "name": "email",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 255,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "sexo",
+        "sqlType": "char",
+        "nullable": false,
+        "maxLength": 1,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "ID_EstadoCivil",
+        "sqlType": "int",
+        "nullable": false,
+        "maxLength": 4,
+        "precision": 10,
+        "scale": 0,
+        "collation": null
+      },
+      {
+        "name": "cod_nacionalidad",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "nacionalidad",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "tipo_trabajador",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 10,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "reloj",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 1,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "tipo_asistencia",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 1,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "Fnacimiento",
+        "sqlType": "datetime",
+        "nullable": false,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "cod_proyecto",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 2,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "area",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "area_desc",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "ccosto",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 12,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "uni_negocio",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 12,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "planilla",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 42,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "id_planilla",
+        "sqlType": "numeric",
+        "nullable": false,
+        "maxLength": 9,
+        "precision": 18,
+        "scale": 0,
+        "collation": null
+      },
+      {
+        "name": "planilla_desc",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "fotocheck",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 20,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "cod_sede",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "sede",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "cod_cargo",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "cargo",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "cod_funcion",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "funcion",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "fingreso",
+        "sqlType": "datetime",
+        "nullable": false,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "fcese",
+        "sqlType": "datetime",
+        "nullable": true,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "estado",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 1,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "updpersonal",
+        "sqlType": "datetime",
+        "nullable": true,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "updagenda",
+        "sqlType": "datetime",
+        "nullable": true,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "updu",
+        "sqlType": "datetime",
+        "nullable": true,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      }
+    ]
+  },
+  "adapterReview": {
+    "compatible": false,
+    "issues": [
+      {
+        "column": "cod_empresa",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "cod_trabajador",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "apellido_pat",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "apellido_mat",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "Nombres",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "email",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "sexo",
+        "sqlType": "char",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "cod_nacionalidad",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "nacionalidad",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "tipo_trabajador",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "reloj",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "tipo_asistencia",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "Fnacimiento",
+        "sqlType": "datetime",
+        "reason": "DATETIME_PRECISION_DRIVER"
+      },
+      {
+        "column": "cod_proyecto",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "area",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "area_desc",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "ccosto",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "uni_negocio",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "planilla",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "id_planilla",
+        "sqlType": "numeric",
+        "reason": "DECIMAL_PRECISION_DRIVER"
+      },
+      {
+        "column": "planilla_desc",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "fotocheck",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "cod_sede",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "sede",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "cod_cargo",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "cargo",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "cod_funcion",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "funcion",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "fingreso",
+        "sqlType": "datetime",
+        "reason": "DATETIME_PRECISION_DRIVER"
+      },
+      {
+        "column": "fcese",
+        "sqlType": "datetime",
+        "reason": "DATETIME_PRECISION_DRIVER"
+      },
+      {
+        "column": "estado",
+        "sqlType": "varchar",
+        "reason": "SQL_ENCODING_NOT_VERIFIED"
+      },
+      {
+        "column": "updpersonal",
+        "sqlType": "datetime",
+        "reason": "DATETIME_PRECISION_DRIVER"
+      },
+      {
+        "column": "updagenda",
+        "sqlType": "datetime",
+        "reason": "DATETIME_PRECISION_DRIVER"
+      },
+      {
+        "column": "updu",
+        "sqlType": "datetime",
+        "reason": "DATETIME_PRECISION_DRIVER"
+      }
+    ]
+  },
+  "review": {
+    "status": "pending-adapter-and-approval",
+    "metadataVerifiedAt": "2026-10-29T20:57:32.452Z",
+    "countsByReason": {
+      "SQL_ENCODING_NOT_VERIFIED": 27,
+      "DATETIME_PRECISION_DRIVER": 6,
+      "DECIMAL_PRECISION_DRIVER": 1
+    },
+    "findings": {
+      "businessProcedureExecuted": false,
+      "workerRowsInspected": false,
+      "multipleRecordsetsVerified": false,
+      "productionPublicationApproved": false
+    }
+  }
+}

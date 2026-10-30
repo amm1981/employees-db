@@ -1,0 +1,29 @@
+id: diamond-bridge-altas-bajas
+company: DIAMOND_BRIDGE_SAC
+enabled: false
+authorization: pending-company-code
+procedure: '[MarcacionesCB].[dbo].[spListarAltas_Bajas_DB_Prueba]'
+database: MarcacionesCB
+profile: private-lan
+parameters: []
+mode: ROLLING_WINDOW_CAPTURE
+schema: contracts/schemas/diamond-bridge.pending.json
+dataset: diamond-bridge-altas-bajas
+publicationEnabled: false
+emptyPolicy: block
+limits:
+  maxRows: 1000000
+  maxBytes: 536870912
+  batchRows: 500
+  batchBytes: 1048576
+schedule:
+  everyMinutes: 60
+  timezone: America/Lima
+  maxMinutes: 45
+timeoutMs: 120000
+retry:
+  attempts: 4
+  baseDelayMs: 500
+secrets:
+  apiToken: API_INGEST_TOKEN
+  spoolKey: SPOOL_KEY

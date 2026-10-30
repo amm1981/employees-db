@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "enum": ["casablanca-altas-bajas", "diamond-bridge-altas-bajas"]
+    },
+    "company": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "authorization": {
+      "type": "string",
+      "enum": ["pending", "approved", "pending-company-code"]
+    },
+    "procedure": {
+      "type": "string"
+    },
+    "database": {
+      "type": "string",
+      "const": "MarcacionesCB"
+    },
+    "profile": {
+      "type": "string",
+      "const": "private-lan"
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "not": {}
+      }
+    },
+    "mode": {
+      "type": "string",
+      "const": "ROLLING_WINDOW_CAPTURE"
+    },
+    "schema": {
+      "type": "string"
+    },
+    "dataset": {
+      "type": "string"
+    },
+    "publicationEnabled": {
+      "type": "boolean"
+    },
+    "emptyPolicy": {
+      "type": "string",
+      "enum": ["block", "allow-approved"]
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "maxRows": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "maxBytes": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "batchRows": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 5000
+        },
+        "batchBytes": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 2097152
+        }
+      },
+      "required": ["maxRows", "maxBytes", "batchRows", "batchBytes"],
+      "additionalProperties": false
+    },
+    "schedule": {
+      "type": "object",
+      "properties": {
+        "everyMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1440
+        },
+        "timezone": {
+          "type": "string",
+          "const": "America/Lima"
+        },
+        "maxMinutes": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 1440
+        }
+      },
+      "required": ["everyMinutes", "timezone", "maxMinutes"],
+      "additionalProperties": false
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 3600000
+    },
+    "retry": {
+      "type": "object",
+      "properties": {
+        "attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "baseDelayMs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60000
+        }
+      },
+      "required": ["attempts", "baseDelayMs"],
+      "additionalProperties": false
+    },
+    "secrets": {
+      "type": "object",
+      "properties": {
+        "apiToken": {
+          "type": "string",
+          "pattern": "^[A-Z_]+$"
+        },
+        "spoolKey": {
+          "type": "string",
+          "pattern": "^[A-Z_]+$"
+        }
+      },
+      "required": ["apiToken", "spoolKey"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "id",
+    "company",
+    "enabled",
+    "authorization",
+    "procedure",
+    "database",
+    "profile",
+    "parameters",
+    "mode",
+    "schema",
+    "dataset",
+    "publicationEnabled",
+    "emptyPolicy",
+    "limits",
+    "schedule",
+    "timeoutMs",
+    "retry",
+    "secrets"
+  ],
+  "additionalProperties": false
+}

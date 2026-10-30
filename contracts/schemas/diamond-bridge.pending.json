@@ -1,0 +1,6 @@
+{
+  "integrationId": "diamond-bridge-altas-bajas",
+  "status": "pending-inspection-and-approval",
+  "schema": null,
+  "reason": "Pendientes metadatos reales y código de empresa aprobado. cod_empresa debe conservar NULL."
+}

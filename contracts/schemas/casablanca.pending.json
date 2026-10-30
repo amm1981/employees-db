@@ -1,0 +1,7 @@
+{
+  "integrationId": "casablanca-altas-bajas",
+  "status": "pending-adapter-and-approval",
+  "schema": null,
+  "candidate": "contracts/schemas/casablanca.candidate-1.json",
+  "reason": "Metadatos de las 37 columnas importados desde SSMS. Pendientes adaptador sin pérdida, revisión y aprobación para extracción. El candidato no está activo."
+}

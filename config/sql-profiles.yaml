@@ -1,0 +1,10 @@
+private-lan:
+  serverEnv: SQL_HOST
+  portEnv: SQL_PORT
+  userEnv: SQL_USER
+  passwordEnv: SQL_PASSWORD
+  encrypt: true
+  trustServerCertificate: false
+  # Explicit user exception: trust the certificate only for metadata inspection.
+  inspectionTrustServerCertificate: true
+  connectionTimeoutMs: 15000

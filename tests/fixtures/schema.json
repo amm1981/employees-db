@@ -1,0 +1,338 @@
+{
+  "version": "fixture-v1",
+  "columns": [
+    {
+      "name": "cod_empresa",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "cod_categoria",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "cod_trabajador",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "apellido_pat",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "apellido_mat",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "Nombres",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "tipo_documento",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "email",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "sexo",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "ID_EstadoCivil",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "cod_nacionalidad",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "nacionalidad",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "tipo_trabajador",
+      "sqlType": "decimal",
+      "nullable": true,
+      "maxLength": 17,
+      "precision": 38,
+      "scale": 18,
+      "collation": null
+    },
+    {
+      "name": "reloj",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "tipo_asistencia",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "Fnacimiento",
+      "sqlType": "date",
+      "nullable": true,
+      "maxLength": 3,
+      "precision": 10,
+      "scale": 0,
+      "collation": null
+    },
+    {
+      "name": "cod_proyecto",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "area",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "area_desc",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "ccosto",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "uni_negocio",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "planilla",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "id_planilla",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "planilla_desc",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "fotocheck",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "cod_sede",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "sede",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "cod_cargo",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "cargo",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "cod_funcion",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "funcion",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "fingreso",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "fcese",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "estado",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "updpersonal",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "updagenda",
+      "sqlType": "nvarchar",
+      "nullable": true,
+      "maxLength": 256,
+      "precision": 0,
+      "scale": 0,
+      "collation": "Latin1_General_100_CI_AS_SC"
+    },
+    {
+      "name": "updu",
+      "sqlType": "datetime2",
+      "nullable": true,
+      "maxLength": 8,
+      "precision": 27,
+      "scale": 7,
+      "collation": null
+    }
+  ]
+}
