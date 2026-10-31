@@ -18,7 +18,17 @@ Desde la consola del servidor:
 ```sh
 cd /var/www/employees-db/backend &&
 git pull --ff-only &&
-php artisan migrate --force &&
+(
+  set -e
+  migration_socket=$(sudo mysql --user=root --batch --skip-column-names --execute="SELECT @@socket;")
+  migration_config_dir=$(mktemp -d)
+  trap 'rmdir "$migration_config_dir"' EXIT
+  sudo env \
+    APP_CONFIG_CACHE="$migration_config_dir/config.php" \
+    DB_CONNECTION=mysql DB_HOST=localhost DB_SOCKET="$migration_socket" \
+    DB_DATABASE=employees_db DB_USERNAME=root DB_PASSWORD= DB_URL= \
+    php artisan migrate --force
+) &&
 php artisan integration:activate diamond-bridge-altas-bajas &&
 php artisan service-token:retarget ti-pc-01 casablanca-altas-bajas diamond-bridge-altas-bajas --token-file=../.local/ti-agent-token.env &&
 php artisan consumer:assign integracion.rrhh --dataset=diamond-bridge-altas-bajas &&
@@ -27,6 +37,8 @@ php artisan optimize:clear
 ```
 
 La migración añade `company_code_policy` con valor predeterminado `required` para integraciones existentes. La activación explícita instala únicamente el contrato revisado de DIAMOND y su política `preserve-null`; crea su registro si no existe. Repetirla con la misma versión y hash es idempotente.
+
+El usuario de ejecución `employees_api` no tiene permiso ALTER en este VPS. El bloque ejecuta únicamente la migración con la administración local de MySQL por socket, verificada con `sudo mysql`. Una ruta de caché temporal evita que Laravel reutilice credenciales cacheadas; no modifica `.env`, los permisos de `employees_api` ni la caché habitual. Los comandos posteriores usan la conexión habitual. Este método requiere acceso administrativo local de MySQL mediante la cuenta root del sistema.
 
 `service-token:retarget` identifica mediante hash el token guardado en el archivo protegido emitido antes para TI. Exige origen `ti-pc-01`, token vigente, no revocado y productivo, un único dataset anterior CASABLANCA o el destino DIAMOND y destino habilitado. Reasigna ese token exclusivamente a DIAMOND, conservando secreto, scopes y caducidad. No imprime secretos ni modifica el `.env` de TI. Si el archivo no existe, detenerse y emitir un token nuevo para DIAMOND; no seleccionar tokens por su posición en la tabla.
 
@@ -77,3 +89,7 @@ Authorization: Bearer <access_token>
 ```
 
 La ventana sigue siendo las últimas 72 horas. `cod_empresa` permanece NULL en la respuesta; el dataset identifica a DIAMOND. La cuenta reasignada ya no permite consultar CASABLANCA.
+
+## Verificación real del 31 de octubre de 2026
+
+El operador aplicó la migración y la activación en el VPS, reasignó el token de TI y la cuenta `integracion.rrhh` a DIAMOND y deshabilitó CASABLANCA conservando su historial. En TI se detuvo y deshabilitó la tarea anterior, se aprobó el hash esperado y se publicaron dos capturas reales de 79 registros cada una. La tarea `GET-Employes-diamond-bridge-altas-bajas` quedó registrada cada 15 minutos con `LastTaskResult=0`, `Ready=True`, cero bloqueos y cero ejecuciones perdidas en esa comprobación. La cuenta conserva su contraseña; los tokens de consumo anteriores fueron revocados y requieren un nuevo login.

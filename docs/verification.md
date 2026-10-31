@@ -8,7 +8,7 @@ El 31 de octubre de 2026 el usuario confirmó que el destino es DIAMOND BRIDGE y
 - 70 pruebas del agente aprobadas y TypeScript compilado: activación exige aprobación ligada al esquema y a la política NULL; un código añadido impide sellar.
 - 41 pruebas del backend y 391 assertions aprobadas tanto en SQLite como en MySQL 8.4.7/InnoDB dedicado. La publicación productiva con NULL funciona, los códigos añadidos se rechazan y CASABLANCA conserva su política. Reasignar datasets conserva la contraseña y revoca sesiones; cambiar el destino de un token conserva su hash, scopes y caducidad y rechaza origen incorrecto, token revocado y permisos ambiguos.
 - E2E HTTP aprobado con datos ficticios: formateador .NET → contrato productivo DIAMOND → captura cifrada → receptor Laravel → publicación → login → API de trabajadores. `cod_empresa` sigue NULL y se conservan duplicados, CP1252 y numeric(18,0).
-- CLI e instalador de tareas usan DIAMOND por defecto. No se registró ninguna tarea en el equipo de desarrollo. La instalación real del cambio en TI/VPS y la primera publicación de trabajadores DIAMOND quedan por verificar allí.
+- CLI e instalador de tareas usan DIAMOND por defecto. No se registró ninguna tarea en el equipo de desarrollo. El operador verificó el cambio real en TI/VPS el 31 de octubre: migración aplicada con administración local por socket, token y consumidor reasignados, CASABLANCA deshabilitada y dos capturas DIAMOND de 79 registros publicadas. La tarea de DIAMOND devolvió `LastTaskResult=0`, repetición de 15 minutos, `Ready=True` y cero ejecuciones perdidas en la comprobación.
 
 ## Corrección de lectura secuencial: 31 de octubre de 2026
 
