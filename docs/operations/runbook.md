@@ -46,20 +46,28 @@ El checkpoint local no es prueba de recepción: si se pierde después de un acus
 
 ## Programador de tareas
 
-Los scripts se han preparado, **no se registraron tareas**. Tras aprobaciones, configuración y build:
+La instalación se realiza **en la PC de TI con acceso a SQL Server**. CASABLANCA tiene una frecuencia configurada de 15 minutos. El equipo de desarrollo no mantiene una tarea registrada. Ver [la instalación del agente en TI](ti-agent.md).
 
 ```powershell
-# Genera XML revisable; aún exige autorización de integración en YAML.
-.\scripts\windows\Install-SyncTask.ps1 -Integration casablanca-altas-bajas
-.\scripts\windows\Test-SyncTask.ps1 -Integration casablanca-altas-bajas
+# Desde la PC de TI, después de configurar el .env local y compilar:
+npm run preflight -- --integration casablanca-altas-bajas
 
-# Acción futura del operador, sólo después de autorización explícita:
-# .\scripts\windows\Install-SyncTask.ps1 -Integration casablanca-altas-bajas -Register
+powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File scripts\windows\Install-SyncTask.ps1 -Integration casablanca-altas-bajas -Register
+powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File scripts\windows\Test-SyncTask.ps1 -Integration casablanca-altas-bajas
+
+# Para actualizar posteriormente una tarea de esta misma carpeta y cuenta:
+# powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File scripts\windows\Install-SyncTask.ps1 -Integration casablanca-altas-bajas -Register -Update
 ```
 
-El XML usa repetición según YAML, límite de duración, inicio con offset de Lima (-05:00), IgnoreNew, recuperación por tres reinicios cada cinco minutos y privilegio mínimo. Run-Sync primero recupera spools y luego ejecuta la nueva captura. Locks locales aportan prevención adicional de solapamiento por integración. Run-All procesa integraciones por separado y reporta errores sin cancelar la otra.
+Sin `-Register` sólo se prepara un XML en `.local/`. No se registran integraciones deshabilitadas como Diamond. Una integración incompleta puede tener una tarea registrada, pero `preflight` impide SQL y HTTP hasta que esté lista. Su salida contiene códigos y cantidades, nunca secretos. Código de salida `2` significa configuración bloqueada, no sincronización correcta.
 
-El ejemplo usa InteractiveToken bajo la cuenta actual, sin almacenar contraseñas; no sirve para una cuenta desconectada. La operación desatendida requiere una cuenta de servicio y LogonType acordados con TI, acceso a sus secretos/ACL y permisos de red. No activar sin esa revisión. Los XML y scripts tienen validación sintáctica; la ejecución de tareas reales está pendiente de autorización y prueba en el entorno objetivo.
+El XML repite cada 15 minutos desde su primer inicio, con offset de Lima (-05:00), privilegio mínimo e `IgnoreNew`: si una ejecución sigue activa, la siguiente se omite. El límite por ejecución continúa en 45 minutos para no cortar capturas grandes al llegar a los 15 minutos. Los locks del agente aportan otra protección contra solapamiento. Los fallos se reevaluarán en el siguiente ciclo; se retiraron los reinicios adicionales cada cinco minutos. [Microsoft documenta IgnoreNew](https://learn.microsoft.com/en-us/windows/win32/taskschd/taskschedulerschema-multipleinstancespolicy-settingstype-element).
+
+`Run-Sync` comprueba la configuración, recupera spools pendientes y sólo entonces inicia una captura nueva. PowerShell se ejecuta sin mostrar ventanas; los logs se guardan en `.local/logs/`. `Run-All` procesa integraciones por separado y reporta sus fallos de forma independiente.
+
+La tarea usa `InteractiveToken` bajo la cuenta Windows actual, sin almacenar su contraseña. El equipo debe estar encendido, conectado a LAN/VPN y **con esa sesión iniciada**; bloquear la pantalla permite continuar, cerrar sesión no. Para funcionar también con la sesión cerrada hay que configurar una cuenta de servicio con acceso a SQL, red y secretos. La instalación no crea servicios ni cambia políticas globales.
+
+La configuración del repositorio conserva restricciones del esquema real. Registrar una tarea no aprueba ese esquema ni resuelve las 34 limitaciones de conversión detectadas. La prueba local de programación devolvió `2` y no ejecutó el SP ni transmitió información; esa tarea se retiró porque el destino correcto es la PC de TI.
 
 ## Backups y rollback
 

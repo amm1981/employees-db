@@ -4,6 +4,8 @@ GET-Employes: primera versión local del agente Windows y la API Laravel 12. Ext
 
 Dominio configurado: **https://api-employeedb.ccruces.com**. La API de consumo ofrece `POST /api/v1/auth/login` con body `username`/`password`, `GET /api/v1/employees?dataset=casablanca-altas-bajas` con token Bearer y `POST /api/v1/auth/logout`. Devuelve sólo modificaciones de las últimas 72 horas. Ver [cuentas, ejemplos y reglas de la API](docs/api/consumer-api.md), [OpenAPI](docs/api/openapi.yaml) y [activación del dominio en el VPS](docs/operations/domain.md).
 
+El agente se prepara en la **PC de TI con Node.js 24**, sin instalar el backend allí. CASABLANCA tiene repetición de **15 minutos**; la [guía de instalación en TI](docs/operations/ti-agent.md) incluye clonación, secretos, diagnóstico y tarea Windows. La programación conserva los bloqueos pendientes de extracción real.
+
 La carpeta de trabajo es `C:\Users\AlonsoMendoza\Documents\Dev\GET-Employes`. La extracción real y la publicación productiva permanecen bloqueadas por aprobación. CASABLANCA tiene un candidato de esquema observado desde SSMS, pendiente de adaptar y aprobar; el esquema real de Diamond Bridge sigue pendiente. Diamond Bridge conserva `cod_empresa = NULL` y no está habilitado para producción.
 
 ## Inicio local en Windows
@@ -128,4 +130,4 @@ El servidor aislado se inicializa sin contraseña administrativa para bootstrap 
 
 El transporte conserva decimales y fechas exactos como texto. El adaptador real `mssql` **rechaza tipos que el driver puede redondear**: decimal/numeric/money, datetime, datetimeoffset, time/datetime2 con precisión mayor a milisegundos, tipos alias y varchar con codificación no verificada. Se debe implementar y probar un adaptador sin pérdida después de inspeccionar el esquema real; los fixtures no demuestran compatibilidad con los SP reales.
 
-FULL, SNAPSHOT_PERIOD, INCREMENTAL y BACKFILL se reservan en el diseño; el validador rechaza activarlos para estos SP. La ventana aproximada de tres días puede perder cambios durante una parada prolongada. No se ha modificado ningún SP, desplegado al VPS, expuesto endpoints en Internet ni registrado tareas de Windows.
+FULL, SNAPSHOT_PERIOD, INCREMENTAL y BACKFILL se reservan en el diseño; el validador rechaza activarlos para estos SP. La ventana aproximada de tres días puede perder cambios durante una parada prolongada. Los SP originales se conservan intactos. El backend se despliega en el VPS y la tarea del agente se instala en la PC de TI; el equipo de desarrollo no mantiene una tarea registrada.

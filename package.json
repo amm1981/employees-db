@@ -23,6 +23,7 @@
     "resume": "tsx agent/src/cli.ts resume",
     "recover": "tsx agent/src/cli.ts recover",
     "inspect": "tsx agent/src/cli.ts inspect",
+    "preflight": "tsx agent/src/cli.ts preflight",
     "unlock": "tsx agent/src/cli.ts unlock"
   },
   "devDependencies": {

@@ -16,6 +16,7 @@ import { Transport } from "./transport.js";
 import { SqlExecutor } from "./sql.js";
 import { saveInspection } from "./inspection.js";
 import { readMetadataExport, ssmsMetadataMethod } from "./metadata.js";
+import { scheduleReadiness } from "./schedule.js";
 envConfig({ path: path.join(root(), ".env"), quiet: true });
 const log = pino({
   base: null,
@@ -102,6 +103,16 @@ async function main(): Promise<void> {
       },
       "metadata_candidate_created",
     );
+    return;
+  }
+  if (command === "preflight") {
+    if (!c) throw new Error("UNKNOWN_INTEGRATION");
+    const readiness = await scheduleReadiness(c);
+    log.info(
+      { integration: c.id, ...readiness },
+      readiness.ready ? "schedule_ready" : "schedule_blocked",
+    );
+    if (!readiness.ready) process.exitCode = 2;
     return;
   }
   const spool = new Spool(

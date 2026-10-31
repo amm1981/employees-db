@@ -17,7 +17,7 @@ limits:
   batchRows: 500
   batchBytes: 1048576
 schedule:
-  everyMinutes: 60
+  everyMinutes: 15
   timezone: America/Lima
   maxMinutes: 45
 timeoutMs: 120000

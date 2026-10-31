@@ -1,5 +1,11 @@
 # Verificación de primera fase
 
+## Agente de TI: 31 de octubre de 2026
+
+CASABLANCA configura repetición de 15 minutos. Se añadió `preflight` sin acceso a SQL/HTTP y preparación del agente para Windows sin dependencias PHP/MySQL. Compilación y 55 pruebas del agente aprobadas. El inicializador se probó con Windows PowerShell 5.1 en una carpeta temporal: crea un `.env` protegido con clave de 32 bytes y preserva el archivo en una segunda ejecución. Los scripts PowerShell pasan el parser.
+
+Se verificó una tarea Windows con repetición `PT15M`, `IgnoreNew` y salida `2` por configuración pendiente; no se consultó el SP ni se enviaron datos. Esa tarea fue retirada al confirmar que el destino es la PC de TI. No queda registrada en el equipo de desarrollo. La instalación en TI y su conectividad se verifican allí; las restricciones del adaptador real permanecen pendientes.
+
 ## Ampliación del 30 de octubre de 2026
 
 Se configuró `api-employeedb.ccruces.com` en las plantillas y se añadió login JSON, tokens de consumo revocables, consulta filtrada a las últimas 72 horas y comandos de aprovisionamiento/indexación. No se cambiaron DNS ni servidores remotos.
