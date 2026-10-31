@@ -11,6 +11,47 @@ afterEach(async () => {
     await rm(folder, { recursive: true, force: true });
 });
 
+it("requires the approved null policy and Diamond schema before enabling its local activation", async () => {
+  const directory = await mkdtemp(
+    path.join(os.tmpdir(), "diamond-activation-test-"),
+  );
+  folders.push(directory);
+  const c = (await loadIntegrations()).find(
+    (i) => i.id === "diamond-bridge-altas-bajas",
+  )!;
+  await mkdir(path.join(directory, ".local/approved"), { recursive: true });
+  await mkdir(path.join(directory, ".local/activation"), { recursive: true });
+  const schemaHash = hash(canonical(fixtureSchema));
+  await writeFile(
+    path.join(directory, ".local/approved", c.id + ".json"),
+    JSON.stringify({
+      integrationId: c.id,
+      status: "approved",
+      schema: fixtureSchema,
+      schemaHash,
+      companyCodePolicy: "preserve-null",
+    }),
+  );
+  const activation = path.join(directory, ".local/activation", c.id + ".json");
+  await writeFile(activation, JSON.stringify({ schemaHash }));
+  await expect(applyLocalActivation(c, directory)).rejects.toThrow(
+    "COMPANY_CODE_PENDING",
+  );
+  await writeFile(
+    activation,
+    JSON.stringify({ schemaHash, companyCodePolicy: "preserve-null" }),
+  );
+  expect(await applyLocalActivation(c, directory)).toMatchObject({
+    enabled: true,
+    authorization: "approved",
+    publicationEnabled: true,
+    companyCodePolicy: "preserve-null",
+  });
+  await expect(
+    applyLocalActivation({ ...c, companyCodePolicy: "required" }, directory),
+  ).rejects.toThrow("COMPANY_CODE_PENDING");
+});
+
 it("activates only a matching approved local schema and never changes the repository YAML", async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), "activation-test-"));
   folders.push(directory);

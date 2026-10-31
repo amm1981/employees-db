@@ -112,6 +112,23 @@ describe("canonical lossless contract", () => {
   });
 });
 describe("encrypted sealed spool", () => {
+  it("preserves an approved Diamond NULL and refuses invented company codes before sealing", async () => {
+    const { spool } = await context();
+    const c = (await loadIntegrations()).find(
+      (i) => i.id === "diamond-bridge-altas-bajas",
+    )!;
+    const m = await extract(
+      spool,
+      c,
+      fixtureSource(true),
+      "synthetic-ti",
+      false,
+    );
+    expect(m.totalRows).toBe(3);
+    await expect(
+      extract(spool, c, fixtureSource(false), "synthetic-ti", false),
+    ).rejects.toThrow("COMPANY_CODE_MISMATCH");
+  });
   it("seals only after complete extraction and verifies all hashes", async () => {
     const { spool, c } = await context();
     const m = await extract(spool, c, fixtureSource(), "fixture-agent", true);

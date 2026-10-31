@@ -62,7 +62,8 @@ async function main(): Promise<void> {
   const c = integrations.find(
     (i) =>
       i.id === values.integration ||
-      (values.integration === undefined && i.id === "casablanca-altas-bajas"),
+      (values.integration === undefined &&
+        i.id === "diamond-bridge-altas-bajas"),
   );
   if (command === "inspect") {
     if (!c) throw new Error("UNKNOWN_INTEGRATION");

@@ -298,88 +298,131 @@ try {
   });
   assert.equal(expired.status, 401);
   if (process.platform === "win32") {
-    // Fully synthetic rows, formatted by the same .NET exact conversion layer.
-    const reviewed = JSON.parse(
-      await readFile(
-        path.join(repo, "contracts/schemas/casablanca.reviewed-v1.json"),
-        "utf8",
-      ),
-    );
-    const wire = execFileSync(
-      "powershell.exe",
-      [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "RemoteSigned",
-        "-File",
-        path.join(repo, "scripts/windows/Test-SqlExact.ps1"),
-        "-EmitFixture",
-      ],
-      { windowsHide: true },
-    );
-    const exactRows = [];
-    for await (const row of decodeExactRows(
-      (async function* () {
-        yield wire;
-      })(),
-      reviewed.schema,
-      100000,
-    ))
-      exactRows.push(row);
-    run(["artisan", "integration:activate", c.id]);
-    run([
-      "artisan",
-      "service-token:issue",
-      c.id,
-      "ti-pc-01",
-      "--scope=ingest",
-      "--scope=publish",
-    ]);
-    run([
-      "artisan",
-      "consumer:create",
-      "e2e.production",
-      "--dataset=" + c.id,
-      "--no-interaction",
-    ]);
-    const production = { ...c, publicationEnabled: true };
-    const capture = await extract(
-      spool,
-      production,
-      {
-        schema: reviewed.schema,
-        rows: (async function* () {
-          yield* exactRows;
+    for (const company of ["casablanca", "diamond-bridge"]) {
+      const target = all.find((i) => i.id === company + "-altas-bajas")!;
+      // Fully synthetic rows, formatted by the same .NET exact conversion layer.
+      const reviewed = JSON.parse(
+        await readFile(
+          path.join(repo, "contracts/schemas/" + company + ".reviewed-v1.json"),
+          "utf8",
+        ),
+      );
+      const wire = execFileSync(
+        "powershell.exe",
+        [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "RemoteSigned",
+          "-File",
+          path.join(repo, "scripts/windows/Test-SqlExact.ps1"),
+          "-EmitFixture",
+          "-Integration",
+          target.id,
+        ],
+        { windowsHide: true },
+      );
+      const exactRows = [];
+      for await (const row of decodeExactRows(
+        (async function* () {
+          yield wire;
         })(),
-      },
-      "ti-pc-01",
-      false,
-    );
-    const sender = new Transport({
-      ...options,
-      baseUrl: "https://receiver.example.invalid",
-      simulation: false,
-      token: env.SERVICE_TOKEN_NEW,
-      fetcher: (input, init) => {
-        const url = new URL(String(input));
-        assert.equal(url.hostname, "receiver.example.invalid");
-        return fetch(baseUrl + url.pathname + url.search, init);
-      },
-    });
-    await sender.send(spool, capture.runId, production, true);
-    const session = await read("/auth/login", "", "POST", {
-      username: "e2e.production",
-      password: env.API_CONSUMER_PASSWORD,
-    });
-    const result = await read(
-      `/employees?dataset=${c.id}`,
-      session.access_token,
-    );
-    assert.equal(result.total, 2);
-    assert.equal(result.records[0].values.id_planilla, "999999999999999999");
-    assert.equal(result.records[0].values.Nombres, "Ficticio ñá €");
-    assert.equal(result.records[0].values.cod_trabajador, "00001234");
-    assert.deepEqual(result.records[0].values, result.records[1].values);
+        reviewed.schema,
+        100000,
+      ))
+        exactRows.push(row);
+      run(["artisan", "integration:activate", target.id]);
+      if (company === "casablanca") {
+        run([
+          "artisan",
+          "service-token:issue",
+          target.id,
+          "ti-pc-01",
+          "--scope=ingest",
+          "--scope=publish",
+        ]);
+        run([
+          "artisan",
+          "consumer:create",
+          "e2e.production",
+          "--dataset=" + target.id,
+          "--no-interaction",
+        ]);
+      } else {
+        const tokenFile = path.join(dir, "synthetic-current-token.env");
+        await writeFile(
+          tokenFile,
+          "API_INGEST_TOKEN=" + env.SERVICE_TOKEN_NEW + "\n",
+          { mode: 0o600 },
+        );
+        run([
+          "artisan",
+          "service-token:retarget",
+          "ti-pc-01",
+          c.id,
+          target.id,
+          "--token-file=" + tokenFile,
+        ]);
+        run([
+          "artisan",
+          "consumer:assign",
+          "e2e.production",
+          "--dataset=" + target.id,
+        ]);
+        run(["artisan", "integration:disable", c.id]);
+      }
+      const production = {
+        ...target,
+        enabled: true,
+        publicationEnabled: true,
+        authorization: "approved" as const,
+      };
+      const capture = await extract(
+        spool,
+        production,
+        {
+          schema: reviewed.schema,
+          rows: (async function* () {
+            yield* exactRows;
+          })(),
+        },
+        "ti-pc-01",
+        false,
+      );
+      const sender = new Transport({
+        ...options,
+        baseUrl: "https://receiver.example.invalid",
+        simulation: false,
+        token: env.SERVICE_TOKEN_NEW,
+        fetcher: (input, init) => {
+          const url = new URL(String(input));
+          assert.equal(url.hostname, "receiver.example.invalid");
+          return fetch(baseUrl + url.pathname + url.search, init);
+        },
+      });
+      await sender.send(spool, capture.runId, production, true);
+      const session = await read("/auth/login", "", "POST", {
+        username: "e2e.production",
+        password: env.API_CONSUMER_PASSWORD,
+      });
+      const result = await read(
+        `/employees?dataset=${target.id}`,
+        session.access_token,
+      );
+      assert.equal(result.total, 2);
+      assert.equal(result.records[0].values.id_planilla, "999999999999999999");
+      assert.equal(result.records[0].values.Nombres, "Ficticio ñá €");
+      assert.equal(result.records[0].values.cod_trabajador, "00001234");
+      assert.deepEqual(result.records[0].values, result.records[1].values);
+      if (company === "diamond-bridge")
+        assert.equal(result.records[0].values.cod_empresa, null);
+      if (company === "diamond-bridge") {
+        const denied = await fetch(
+          baseUrl + `/api/v1/employees?dataset=${c.id}`,
+          { headers: { Authorization: "Bearer " + session.access_token } },
+        );
+        assert.equal(denied.status, 403);
+      }
+    }
   }
   console.log(
     JSON.stringify(
@@ -399,6 +442,8 @@ try {
           ...(process.platform === "win32"
             ? [
                 ".NET exact formatter → CASABLANCA v1 production contract → HTTP → authenticated employee API (synthetic rows)",
+                ".NET exact formatter → DIAMOND null policy → production publication → employee API (synthetic rows)",
+                "CASABLANCA → DIAMOND: retargeted service token, consumer assignment, source disabled and dataset isolation",
               ]
             : []),
         ],

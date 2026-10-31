@@ -23,6 +23,9 @@ export const integrationValidator = z
     schema: z.string(),
     dataset: z.string(),
     publicationEnabled: z.boolean(),
+    companyCodePolicy: z
+      .enum(["required", "preserve-null"])
+      .default("required"),
     emptyPolicy: z.enum(["block", "allow-approved"]),
     limits: z
       .object({
@@ -57,7 +60,11 @@ export const integrationValidator = z
   .superRefine((v, ctx) => {
     if (v.procedure !== registry[v.id])
       ctx.addIssue({ code: "custom", message: "UNAUTHORIZED_PROCEDURE" });
-    if (v.id === "diamond-bridge-altas-bajas" && v.publicationEnabled)
+    if (
+      v.id === "diamond-bridge-altas-bajas" &&
+      v.publicationEnabled &&
+      v.companyCodePolicy !== "preserve-null"
+    )
       ctx.addIssue({ code: "custom", message: "COMPANY_CODE_PENDING" });
     if (v.publicationEnabled && v.authorization !== "approved")
       ctx.addIssue({ code: "custom", message: "APPROVAL_REQUIRED" });
@@ -100,10 +107,11 @@ export async function applyLocalActivation(
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return c;
     throw error;
   }
-  if (c.id !== "casablanca-altas-bajas")
-    throw new Error("COMPANY_CODE_PENDING");
   const activation = z
-    .object({ schemaHash: z.string().regex(/^[0-9a-f]{64}$/) })
+    .object({
+      schemaHash: z.string().regex(/^[0-9a-f]{64}$/),
+      companyCodePolicy: z.enum(["required", "preserve-null"]).optional(),
+    })
     .strict()
     .parse(JSON.parse(raw));
   const schemaPath = ".local/approved/" + c.id + ".json";
@@ -118,8 +126,17 @@ export async function applyLocalActivation(
     hash(canonical(schema)) !== activation.schemaHash
   )
     throw new Error("LOCAL_ACTIVATION_INVALID");
+  if (
+    c.id === "diamond-bridge-altas-bajas" &&
+    (c.companyCodePolicy !== "preserve-null" ||
+      activation.companyCodePolicy !== "preserve-null" ||
+      approved.companyCodePolicy !== "preserve-null" ||
+      !schema.columns[0]!.nullable)
+  )
+    throw new Error("COMPANY_CODE_PENDING");
   return integrationValidator.parse({
     ...c,
+    enabled: c.id === "diamond-bridge-altas-bajas" ? true : c.enabled,
     schema: schemaPath,
     authorization: "approved",
     publicationEnabled: true,

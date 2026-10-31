@@ -283,6 +283,13 @@ export async function extract(
   try {
     for await (const row of source.rows) {
       validateRow(row, schema);
+      if (
+        !simulation &&
+        c.id === "diamond-bridge-altas-bajas" &&
+        c.companyCodePolicy === "preserve-null" &&
+        row[0] !== null
+      )
+        throw new Error("COMPANY_CODE_MISMATCH");
       const bytes = Buffer.byteLength(canonical(row));
       if (bytes + 2 > c.limits.batchBytes) throw new Error("ROW_TOO_LARGE");
       if (

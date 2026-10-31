@@ -1,6 +1,7 @@
 {
   "integrationId": "diamond-bridge-altas-bajas",
-  "status": "pending-inspection-and-approval",
+  "status": "pending-activation",
   "schema": null,
-  "reason": "Pendientes metadatos reales y código de empresa aprobado. cod_empresa debe conservar NULL."
+  "candidate": "contracts/schemas/diamond-bridge.candidate-1.json",
+  "reason": "Metadatos inspeccionados y publicación con cod_empresa=NULL autorizada por el usuario. Ejecutar activación explícita en TI y VPS."
 }

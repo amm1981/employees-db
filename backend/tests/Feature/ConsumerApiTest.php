@@ -88,6 +88,20 @@ class ConsumerApiTest extends TestCase
         $this->employees($headers)->assertNotFound();
     }
 
+    public function test_dataset_reassignment_preserves_password_and_revokes_existing_sessions(): void
+    {
+        $old = $this->login();
+        $password = DB::table('api_consumers')->value('password');
+        $this->artisan('consumer:assign', ['username' => 'fixture.reader', '--dataset' => ['diamond-bridge-altas-bajas']])->assertSuccessful();
+        $this->assertSame($password, DB::table('api_consumers')->value('password'));
+        $this->employees($old)->assertUnauthorized();
+        $headers = $this->login();
+        $this->employees($headers)->assertForbidden();
+        $this->getJson('/api/v1/employees?dataset=diamond-bridge-altas-bajas', $headers)->assertNotFound();
+        $this->artisan('consumer:assign', ['username' => 'fixture.reader', '--dataset' => ['unknown']])->assertFailed();
+        $this->assertSame(['diamond-bridge-altas-bajas'], json_decode(DB::table('api_consumers')->value('integrations'), true));
+    }
+
     public function test_bad_unknown_and_disabled_credentials_have_the_same_error(): void
     {
         foreach ([['fixture.reader', 'incorrect-password'], ['unknown.reader', $this->password]] as [$username, $password]) {

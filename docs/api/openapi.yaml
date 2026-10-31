@@ -113,7 +113,7 @@ paths:
           schema:
             type: string
             maxLength: 80
-          example: casablanca-altas-bajas
+          example: diamond-bridge-altas-bajas
         - name: page
           in: query
           schema:

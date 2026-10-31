@@ -162,7 +162,6 @@ final class SyncController extends Controller
             }
             abort_unless($run->status === 'finalized', 409, 'RUN_NOT_FINALIZED');
             abort_unless($run->simulation || ($i->enabled && $i->publication_enabled), 403, 'PUBLICATION_DISABLED');
-            abort_if(! $run->simulation && $i->id === 'diamond-bridge-altas-bajas' && ! $i->approved_company_code, 403, 'COMPANY_CODE_PENDING');
             $active = DB::table('active_publications as a')->join('publications as p', 'p.id', '=', 'a.publication_id')->join('sync_runs as r', 'r.id', '=', 'p.run_id')->where('a.integration_id', $i->id)->first(['r.source_started_at']);
             abort_if($active && $active->source_started_at > $run->source_started_at, 409, 'STALE_PUBLICATION');
             app(RunIntegrity::class)->verify($run);

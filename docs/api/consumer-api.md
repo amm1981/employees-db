@@ -11,7 +11,7 @@ En el backend instalado, después de hacer backup de su base:
 ```sh
 php artisan migrate --force
 php artisan workers:index
-php artisan consumer:create integracion.rrhh --dataset=casablanca-altas-bajas
+php artisan consumer:create integracion.rrhh --dataset=diamond-bridge-altas-bajas
 ```
 
 El último comando solicita una contraseña oculta de 16 a 72 bytes. En Windows puede usarse `C:\wamp64\bin\php\php8.3.28\php.exe` desde la carpeta `backend`. Para aprovisionamiento desatendido, inyectar `API_CONSUMER_PASSWORD` desde el gestor de secretos y añadir `--no-interaction`; no pasar contraseñas como argumentos ni guardarlas en Git. `--dataset` puede repetirse para asignar otras integraciones ya registradas. La cuenta se crea con password hasheado, nunca con privilegios del agente.
@@ -57,7 +57,7 @@ Sólo se almacena SHA-256 del token. Su duración predeterminada es de 60 minuto
 ## 2. Consultar trabajadores
 
 ```sh
-curl "https://api-employeedb.ccruces.com/api/v1/employees?dataset=casablanca-altas-bajas&page=1&pageSize=100" --header "Authorization: Bearer <access_token>" --header "Accept: application/json"
+curl "https://api-employeedb.ccruces.com/api/v1/employees?dataset=diamond-bridge-altas-bajas&page=1&pageSize=100" --header "Authorization: Bearer <access_token>" --header "Accept: application/json"
 ```
 
 Parámetros permitidos:
@@ -81,7 +81,7 @@ El criterio temporal es explícito:
 
 Se consulta la última publicación completa por defecto. La consulta no ejecuta el procedimiento ni conecta el VPS a SQL Server. Una captura antigua puede devolver cero registros al salir sus fechas de la ventana. No se agregan publicaciones solapadas ni se deduplican registros. `total` cuenta sólo las filas que cumplen el filtro. El reloj avanza entre páginas incluso fijando `publicationId`; se recomienda consumirlas seguidas. `sourceCompletedAt` permite conocer la antigüedad de la captura.
 
-La ventana es una regla de esta API. El filtro interno aproximado del SP permanece intacto; esta API no recupera filas que el SP no haya devuelto ni demuestra un padrón completo. Las restricciones pendientes de extracción real de CASABLANCA y publicación de Diamond siguen documentadas en [integraciones](../integrations/initial.md).
+La ventana es una regla de esta API. El filtro interno aproximado del SP permanece intacto; esta API no recupera filas que el SP no haya devuelto ni demuestra un padrón completo. La activación del contrato de DIAMOND, su política aprobada de conservar cod_empresa=NULL y la reasignación de permisos se describen en [la guía de DIAMOND](../operations/diamond-agent.md).
 
 ## 3. Cerrar sesión
 

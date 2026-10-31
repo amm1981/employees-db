@@ -2,11 +2,13 @@
 
 GET-Employes: primera versión local del agente Windows y la API Laravel 12. Extrae **capturas de modificaciones observadas en una ventana móvil**; no representa el padrón completo. No elimina trabajadores ausentes ni deduplica filas legítimas.
 
-Dominio configurado: **https://api-employeedb.ccruces.com**. La API de consumo ofrece `POST /api/v1/auth/login` con body `username`/`password`, `GET /api/v1/employees?dataset=casablanca-altas-bajas` con token Bearer y `POST /api/v1/auth/logout`. Devuelve sólo modificaciones de las últimas 72 horas. Ver [cuentas, ejemplos y reglas de la API](docs/api/consumer-api.md), [OpenAPI](docs/api/openapi.yaml) y [activación del dominio en el VPS](docs/operations/domain.md).
+Destino de esta instalación: **DIAMOND BRIDGE**, procedimiento `[MarcacionesCB].[dbo].[spListarAltas_Bajas_DB_Prueba]`. El usuario autorizó publicar conservando `cod_empresa=NULL`; no se rellena con códigos supuestos. La [guía de cambio a DIAMOND](docs/operations/diamond-agent.md) prepara el VPS, reasigna los permisos existentes y sustituye la tarea anterior de CASABLANCA.
 
-El agente se prepara en la **PC de TI con Node.js 24**, sin instalar el backend allí. CASABLANCA tiene repetición de **15 minutos**; la [guía de instalación en TI](docs/operations/ti-agent.md) incluye clonación, secretos, diagnóstico y tarea Windows. La programación conserva los bloqueos pendientes de extracción real.
+Dominio configurado: **https://api-employeedb.ccruces.com**. La API de consumo ofrece `POST /api/v1/auth/login` con body `username`/`password`, `GET /api/v1/employees?dataset=diamond-bridge-altas-bajas` con token Bearer y `POST /api/v1/auth/logout`. Devuelve sólo modificaciones de las últimas 72 horas. Ver [cuentas, ejemplos y reglas de la API](docs/api/consumer-api.md), [OpenAPI](docs/api/openapi.yaml) y [activación del dominio en el VPS](docs/operations/domain.md).
 
-La carpeta de desarrollo es `C:\Users\AlonsoMendoza\Documents\Dev\GET-Employes`; el agente de TI se instaló en `C:\Apps\GET-Employes`. CASABLANCA tiene un contrato revisado y adaptador exacto, que se activan mediante los comandos de la guía de TI; el repositorio no se autoactiva al clonarlo. El esquema real de Diamond Bridge sigue pendiente, conserva `cod_empresa = NULL` y no está habilitado para producción.
+El agente se prepara en la **PC de TI con Node.js 24**, sin instalar el backend allí. DIAMOND tiene repetición de **15 minutos** y necesita `npm run activate:diamond` antes de ejecutar. La CLI y el instalador de tareas usan DIAMOND por defecto; CASABLANCA requiere selección explícita.
+
+La carpeta de desarrollo es `C:\Users\AlonsoMendoza\Documents\Dev\GET-Employes`; el agente de TI se instaló en `C:\Apps\GET-Employes`. DIAMOND tiene un contrato propio revisado de 37 columnas, adaptador exacto y política `preserve-null`. El repositorio no se autoactiva al clonarlo. Las capturas anteriores de CASABLANCA conservan su dataset e historial; no se convierten en datos de DIAMOND.
 
 ## Inicio local en Windows
 

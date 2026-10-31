@@ -1,5 +1,5 @@
 param(
-  [ValidateSet('casablanca-altas-bajas','diamond-bridge-altas-bajas')][string]$Integration = 'casablanca-altas-bajas',
+  [ValidateSet('casablanca-altas-bajas','diamond-bridge-altas-bajas')][string]$Integration = 'diamond-bridge-altas-bajas',
   [switch]$Register,
   [switch]$Update
 )

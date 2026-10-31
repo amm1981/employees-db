@@ -2,14 +2,15 @@
 
 ## YAML
 
-`config/integrations/*.yaml` se valida con Zod estricto en `agent/src/config.ts`. `config/integration.schema.json` permite asistencia del editor, pero las reglas adicionales de Zod son la autoridad (SP exacto, permisos y bloqueo de Diamond). Se rechazan claves desconocidas, parámetros, IDs repetidos, SQL arbitrario y modalidades no autorizadas.
+`config/integrations/*.yaml` se valida con Zod estricto en `agent/src/config.ts`. `config/integration.schema.json` permite asistencia del editor, pero las reglas adicionales de Zod son la autoridad (SP exacto, permisos y política de empresa). Se rechazan claves desconocidas, parámetros, IDs repetidos, SQL arbitrario y modalidades no autorizadas.
 
 | Campo | Regla |
 |---|---|
 | id, procedure, database | Correspondencia exacta con allowlist compilada y MarcacionesCB |
 | company, dataset | Identidad de empresa y destino; backend exige dataset=id |
 | enabled, authorization | Aprobación de ejecución independiente de publicación |
-| publicationEnabled | Requiere autorización approved; Diamond bloqueado en esta fase |
+| publicationEnabled | Requiere autorización approved; DIAMOND exige política preserve-null aprobada |
+| companyCodePolicy | required por defecto; preserve-null aprobado expresamente para DIAMOND y ligado a su activación |
 | mode | Sólo ROLLING_WINDOW_CAPTURE |
 | schema | Manifiesto versionado aprobado en ruta local de confianza |
 | emptyPolicy | block por defecto; allow-approved requiere también permiso receptor |
@@ -22,7 +23,7 @@
 
 ## Inspección y aprobación de esquema
 
-CASABLANCA ya tiene un candidato observado desde SSMS en `contracts/schemas/casablanca.candidate-1.json`, pendiente de adaptar y aprobar. Diamond Bridge sigue sin esquema real inspeccionado. Los manifiestos activos `.pending.json` conservan `schema=null` para impedir que un candidato se utilice antes de su aprobación. La lista de nombres por sí sola no permite inferir tipos, nullabilidad, tamaños ni collation.
+CASABLANCA y DIAMOND tienen candidatos inspeccionados y contratos revisados independientes. DIAMOND usa `diamond-null-v1`, con `cod_empresa` nullable y política `preserve-null` autorizada por el usuario. Los manifiestos `.pending.json` no habilitan producción; la activación local compara metadatos reales y guarda el contrato aprobado en `.local`, mientras el VPS requiere su propia activación explícita. La lista de nombres por sí sola no permite inferir tipos, nullabilidad, tamaños ni collation.
 
 Después de autorización expresa de acceso y preparación de secretos, el operador puede ejecutar una inspección independiente. **Mantener `authorization=pending` y `publicationEnabled=false`; no hace falta habilitar la extracción para inspeccionar.**
 

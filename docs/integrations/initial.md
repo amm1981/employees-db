@@ -16,11 +16,11 @@ Evaluación de seguridad **preliminar**, basada sólo en la descripción del usu
 - Conexión a `MarcacionesCB`; allowlist: `[MarcacionesCB].[dbo].[spListarAltas_Bajas_DB_Prueba]`.
 - El SP de prueba existe y fue probado en SSMS por el usuario; este proyecto no lo ha ejecutado.
 - `CAST(NULL AS VARCHAR(2)) AS cod_empresa` se conserva como null. No se rellenará con códigos supuestos.
-- `enabled=false`, `authorization=pending-company-code`, `publicationEnabled=false`; bloqueo adicional compilado en el validador. La API productiva exige habilitación y código aprobado y valida que cada fila corresponda al código aprobado antes de finalizar/publicar.
-- Los fixtures pueden recorrer el flujo local completo con `simulation=true` para verificar el transporte del null. Esto no habilita producción.
+- El usuario autorizó el 31 de octubre de 2026 publicar conservando `cod_empresa=NULL`. La política `preserve-null` exige NULL en todas las filas de producción, sin asignar códigos. `enabled=false`, `authorization=pending` y `publicationEnabled=false` en el YAML requieren [activación explícita en TI y VPS](../operations/diamond-agent.md).
+- Los metadatos reales de 37 columnas están inspeccionados y el contrato `diamond-null-v1` está revisado. El adaptador .NET exacto admite los tipos. Los fixtures verifican el flujo productivo con NULL en bases de pruebas; no activan servidores reales.
 - `[MarcacionesCB].[dbo].[spListarAltas_Bajas_DB]` **no está autorizado**: su adopción futura exige existencia verificada, revisión de esquema, evidencia de aprobación y un cambio de allowlist revisado. No hay alias automático.
 
-Evaluación preliminar: mismos riesgos de PII, permisos entre bases, efectos internos y múltiples recordsets que CASABLANCA; además, código de empresa incompleto. No afirmar que el procedimiento definitivo existe ni sustituirlo sin aprobación.
+La integración conserva el SP de prueba confirmado por el usuario. Un segundo recordset o una diferencia de esquema aborta la captura; los datos personales quedan cifrados en spool y backend. No se ha ejecutado el SP de trabajadores desde el equipo de desarrollo. No afirmar que el procedimiento definitivo existe ni sustituirlo sin aprobación.
 
 ## Ventana móvil y pérdida de cambios
 

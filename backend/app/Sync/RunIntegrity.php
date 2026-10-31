@@ -14,7 +14,8 @@ final class RunIntegrity
         abort_unless($s && $s->approved && hash_equals($s->hash, $manifest['schemaHash']) && hash_equals($s->hash, Canonical::hash($manifest['schema'])), 409, 'SCHEMA_REVOKED_OR_CHANGED');
         $i = DB::table('integrations')->where('id', $run->integration_id)->first();
         $validateCompany = ! $run->simulation && $run->integration_id === 'diamond-bridge-altas-bajas';
-        abort_if($validateCompany && ! $i->approved_company_code, 403, 'COMPANY_CODE_PENDING');
+        $preserveNull = $validateCompany && $i->company_code_policy === 'preserve-null';
+        abort_if($validateCompany && ! $preserveNull && (! $i->approved_company_code || $i->company_code_policy !== 'required'), 403, 'COMPANY_CODE_PENDING');
         abort_unless(DB::table('sync_batches')->where('run_id', $run->id)->count() === $run->expected_batches, 409, 'BATCHES_INCOMPLETE');
         $rows = 0;
         $bytes = 0;
@@ -26,7 +27,7 @@ final class RunIntegrity
                 $plain = Crypt::decryptString($record->payload);
                 abort_unless($record->ordinal === $rows + $n && hash_equals($record->hash, hash('sha256', $plain)), 409, 'ROW_INTEGRITY');
                 $row = json_decode($plain, true, 512, JSON_THROW_ON_ERROR);
-                abort_if($validateCompany && $row[0] !== $i->approved_company_code, 422, 'COMPANY_CODE_MISMATCH');
+                abort_if($validateCompany && $row[0] !== ($preserveNull ? null : $i->approved_company_code), 422, 'COMPANY_CODE_MISMATCH');
                 $payload[] = $row;
             }
             $data = Canonical::encode($payload);

@@ -1,5 +1,7 @@
 # Agente Windows en la PC de TI
 
+El destino actual de esta instalación es **DIAMOND BRIDGE**. Seguir [Activar DIAMOND en TI y VPS](diamond-agent.md) para cambiar los permisos y la tarea anterior. Los ejemplos de CASABLANCA de este documento describen su preparación original.
+
 El agente se instala en la PC de TI con acceso LAN/VPN a SQL Server. El VPS aloja Laravel y MySQL; no ejecuta las consultas al SQL privado. En TI hacen falta Git, Node.js 24 LTS y Windows PowerShell 5.1/.NET Framework 4.8, no PHP, Composer, Laravel ni MySQL. CASABLANCA usa mssql para comprobar metadatos y un lector SqlDataReader para conservar números, fechas y texto CP1252 sin pasar por Number de JavaScript.
 
 ## Clonar y preparar

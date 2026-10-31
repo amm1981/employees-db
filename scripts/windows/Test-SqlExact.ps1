@@ -1,4 +1,4 @@
-param([switch]$EmitFixture)
+param([switch]$EmitFixture, [ValidateSet('casablanca-altas-bajas','diamond-bridge-altas-bajas')][string]$Integration = 'casablanca-altas-bajas')
 $ErrorActionPreference = 'Stop'
 Add-Type -Path @((Join-Path $PSScriptRoot 'SqlExactReader.cs'), (Join-Path $PSScriptRoot 'SqlExactReaderTests.cs')) -ReferencedAssemblies System.Data,System.Web.Extensions,System.Xml
 [GetEmployes.SqlExactReaderTests]::Run()
@@ -39,7 +39,8 @@ try {
 if ($EmitFixture) {
     # Synthetic protocol sample only. This script never opens a SQL connection.
     [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false, $true)
-    $schema = (Get-Content -LiteralPath (Join-Path $PSScriptRoot '../../contracts/schemas/casablanca.reviewed-v1.json') -Raw -Encoding UTF8 | ConvertFrom-Json).schema
+    $contractFile = if ($Integration -eq 'diamond-bridge-altas-bajas') { 'diamond-bridge.reviewed-v1.json' } else { 'casablanca.reviewed-v1.json' }
+    $schema = (Get-Content -LiteralPath (Join-Path $PSScriptRoot "../../contracts/schemas/$contractFile") -Raw -Encoding UTF8 | ConvertFrom-Json).schema
     $row = [object[]]::new(37)
     for ($index = 0; $index -lt 37; $index++) {
         $column = $schema.columns[$index]

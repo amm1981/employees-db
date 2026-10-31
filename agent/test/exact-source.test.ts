@@ -70,6 +70,25 @@ describe("exact SQL bridge", () => {
       collect('{"kind":"error","code":"password=synthetic-private-value"}\n'),
     ).rejects.toThrow("SQL_EXTRACTION_FAILED");
   });
+  it("keeps the inspected Diamond contract distinct and preserves its nullable company code", async () => {
+    const candidate = JSON.parse(
+      await readFile(
+        path.join(root(), "contracts/schemas/diamond-bridge.candidate-1.json"),
+        "utf8",
+      ),
+    );
+    expect(candidate.integrationId).toBe("diamond-bridge-altas-bajas");
+    expect(candidate.status).not.toBe("approved");
+    expect(candidate.schema.columns[0]).toMatchObject({
+      name: "cod_empresa",
+      sqlType: "varchar",
+      maxLength: 2,
+      nullable: true,
+    });
+    expect(
+      new SqlExecutor().losslessIssues(candidate.schema, "dotnet"),
+    ).toEqual([]);
+  });
   it("counts CP1252 bytes rather than UTF8 and rejects unrepresentable text", () => {
     expect(varcharBytes("ñá € —", "Modern_Spanish_CI_AS")).toBe(6);
     expect(() => varcharBytes("漢", "Modern_Spanish_CI_AS")).toThrow(

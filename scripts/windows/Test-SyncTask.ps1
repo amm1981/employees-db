@@ -1,4 +1,4 @@
-param([string]$Integration = 'casablanca-altas-bajas')
+param([string]$Integration = 'diamond-bridge-altas-bajas')
 $ErrorActionPreference = 'Stop'
 $name = "GET-Employes-$Integration"
 $task = Get-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue

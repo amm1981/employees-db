@@ -1,15 +1,17 @@
 id: diamond-bridge-altas-bajas
 company: DIAMOND_BRIDGE_SAC
 enabled: false
-authorization: pending-company-code
+authorization: pending
 procedure: '[MarcacionesCB].[dbo].[spListarAltas_Bajas_DB_Prueba]'
 database: MarcacionesCB
 profile: private-lan
+extractionAdapter: dotnet
 parameters: []
 mode: ROLLING_WINDOW_CAPTURE
 schema: contracts/schemas/diamond-bridge.pending.json
 dataset: diamond-bridge-altas-bajas
 publicationEnabled: false
+companyCodePolicy: preserve-null
 emptyPolicy: block
 limits:
   maxRows: 1000000
@@ -17,7 +19,7 @@ limits:
   batchRows: 500
   batchBytes: 1048576
 schedule:
-  everyMinutes: 60
+  everyMinutes: 15
   timezone: America/Lima
   maxMinutes: 45
 timeoutMs: 120000

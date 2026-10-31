@@ -1,5 +1,15 @@
 # Verificación de primera fase
 
+## DIAMOND con NULL autorizado y cambio de destino
+
+El 31 de octubre de 2026 el usuario confirmó que el destino es DIAMOND BRIDGE y autorizó publicar los resultados de `spListarAltas_Bajas_DB_Prueba` conservando `cod_empresa=NULL`. La inspección real de metadatos devolvió 37 columnas; sólo cambia la nullabilidad de `cod_empresa` respecto a CASABLANCA. No se ejecutó el SP de trabajadores desde el equipo de desarrollo.
+
+- Contrato independiente `diamond-null-v1`, SHA-256 `4bea3f9338b98121611b0d29a20362461a84d49ca8c1c5897b0413eb92a59e91`.
+- 70 pruebas del agente aprobadas y TypeScript compilado: activación exige aprobación ligada al esquema y a la política NULL; un código añadido impide sellar.
+- 41 pruebas del backend y 391 assertions aprobadas tanto en SQLite como en MySQL 8.4.7/InnoDB dedicado. La publicación productiva con NULL funciona, los códigos añadidos se rechazan y CASABLANCA conserva su política. Reasignar datasets conserva la contraseña y revoca sesiones; cambiar el destino de un token conserva su hash, scopes y caducidad y rechaza origen incorrecto, token revocado y permisos ambiguos.
+- E2E HTTP aprobado con datos ficticios: formateador .NET → contrato productivo DIAMOND → captura cifrada → receptor Laravel → publicación → login → API de trabajadores. `cod_empresa` sigue NULL y se conservan duplicados, CP1252 y numeric(18,0).
+- CLI e instalador de tareas usan DIAMOND por defecto. No se registró ninguna tarea en el equipo de desarrollo. La instalación real del cambio en TI/VPS y la primera publicación de trabajadores DIAMOND quedan por verificar allí.
+
 ## Corrección de lectura secuencial: 31 de octubre de 2026
 
 El primer intento real en TI terminó con `SQL_BRIDGE_FAILED` y captura sin sellar. La revisión detectó que la comprobación de longitud con `GetChars` seguida de `GetValue` releía una columna ya consumida en modo `SequentialAccess`. La [implementación de referencia de SqlDataReader](https://github.com/microsoft/referencesource/blob/main/System.Data/System/Data/SqlClient/SqlDataReader.cs) confirma esa restricción. Se reemplazó por lectura incremental de texto/binarios con offsets crecientes y límites durante la lectura.

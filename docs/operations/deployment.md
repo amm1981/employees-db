@@ -7,7 +7,7 @@ Esta guía prepara el despliegue. La configuración del dominio solicitado y Ngi
 1. Obtener autorización para SQL privado; comprobar VPN/LAN, certificado con nombre válido, usuario con EXECUTE mínimo, metadatos y permisos efectivos de acceso entre bases. Prohibir roles sysadmin/db_owner y cualquier apertura de SQL a Internet.
 2. Revisar los SP sin alterarlos; aprobar 37 columnas y tipos reales, recordsets, ausencia de efectos secundarios, límites, tiempos y semántica exacta de fechas. Inspección pendiente.
 3. Resolver el adaptador sin pérdida cuando aparezcan decimal/money/datetime de precisión no soportada o encoding de varchar no verificado. No activar un esquema sólo porque lo pueda describir SQL Server.
-4. Aprobar el código de Diamond Bridge y el procedimiento definitivo si corresponde. Los bloqueos compilados y YAML sólo deben cambiar mediante revisión de código.
+4. Para DIAMOND, aplicar la política `preserve-null` autorizada por el usuario para `spListarAltas_Bajas_DB_Prueba`, con el contrato revisado propio. Seguir [la activación de DIAMOND](diamond-agent.md). Un cambio futuro al SP definitivo requiere inspección y revisión adicionales.
 5. Definir tokens distintos para ingest/publish/cancel, lectura y rollback, limitados por integración/origen y con expiración/revocación. El agente no recibe un token de lectura.
 6. Acordar PII, retención, backups cifrados, responsables, acceso a auditoría y respuesta a incidentes. No incluir datos reales en fixtures.
 
