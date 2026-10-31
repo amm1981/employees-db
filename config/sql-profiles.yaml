@@ -5,6 +5,7 @@ private-lan:
   passwordEnv: SQL_PASSWORD
   encrypt: true
   trustServerCertificate: false
-  # Explicit user exception: trust the certificate only for metadata inspection.
+  # Explicit user instruction: encrypted SQL connection with trusted certificate.
   inspectionTrustServerCertificate: true
+  extractionTrustServerCertificate: true
   connectionTimeoutMs: 15000

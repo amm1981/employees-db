@@ -6,7 +6,7 @@ Dominio configurado: **https://api-employeedb.ccruces.com**. La API de consumo o
 
 El agente se prepara en la **PC de TI con Node.js 24**, sin instalar el backend allí. CASABLANCA tiene repetición de **15 minutos**; la [guía de instalación en TI](docs/operations/ti-agent.md) incluye clonación, secretos, diagnóstico y tarea Windows. La programación conserva los bloqueos pendientes de extracción real.
 
-La carpeta de trabajo es `C:\Users\AlonsoMendoza\Documents\Dev\GET-Employes`. La extracción real y la publicación productiva permanecen bloqueadas por aprobación. CASABLANCA tiene un candidato de esquema observado desde SSMS, pendiente de adaptar y aprobar; el esquema real de Diamond Bridge sigue pendiente. Diamond Bridge conserva `cod_empresa = NULL` y no está habilitado para producción.
+La carpeta de desarrollo es `C:\Users\AlonsoMendoza\Documents\Dev\GET-Employes`; el agente de TI se instaló en `C:\Apps\GET-Employes`. CASABLANCA tiene un contrato revisado y adaptador exacto, que se activan mediante los comandos de la guía de TI; el repositorio no se autoactiva al clonarlo. El esquema real de Diamond Bridge sigue pendiente, conserva `cod_empresa = NULL` y no está habilitado para producción.
 
 ## Inicio local en Windows
 
@@ -66,7 +66,7 @@ Mantener la terminal del servidor abierta mientras se ejecutan los comandos de e
 
 Para consultar, obtener **localmente** `readToken` de `.local/fixture-tokens.json` y usarlo como Bearer en `GET http://127.0.0.1:8000/api/v1/datasets/casablanca-altas-bajas/records`. El token de ingesta carece de lectura. No copiar tokens a logs ni al repositorio.
 
-`npm run sync -- --integration casablanca-altas-bajas` sin `--simulate` falla deliberadamente por falta de autorización. Una ejecución SQL futura requerirá además `--allow-sql`, esquema aprobado, TLS verificable y secretos externos. No se ha ejecutado el SP de negocio. La inspección directa de metadatos ya se conectó correctamente, usando la excepción de confianza de certificado solicitada por el usuario; su [alcance y evidencia](docs/operations/sql-inspection.md) están documentados.
+La extracción real requiere activación local, `--allow-sql` y secretos externos. El repositorio clonado conserva los bloqueos hasta ejecutar `npm run activate:casablanca` en TI. La inspección directa ya se conectó correctamente usando la excepción de confianza de certificado solicitada por el usuario; su [alcance y evidencia](docs/operations/sql-inspection.md) están documentados. La primera extracción real y publicación se verifican desde TI.
 
 ## Inspección autorizada de metadatos
 
@@ -84,7 +84,7 @@ Si se obtienen los metadatos desde la consulta preparada para SSMS, importarlos 
 npm run inspect -- --integration casablanca-altas-bajas --from-file .local\casablanca.metadata.json
 ```
 
-La guía [Inspección SQL](docs/operations/sql-inspection.md) explica la exportación desde SSMS y la conexión directa. La CA adicional está pendiente; `inspectionTrustServerCertificate=true` permite inspeccionar por conexión cifrada sin verificar ese certificado, por indicación explícita del usuario. La excepción no se aplica a la extracción ni al HTTPS del VPS.
+La guía [Inspección SQL](docs/operations/sql-inspection.md) explica la exportación desde SSMS y la conexión directa. La CA adicional está pendiente; el perfil permite conexiones SQL cifradas con la confianza de certificado solicitada por el usuario en inspección y extracción. HTTPS al VPS mantiene la verificación de su certificado.
 
 ## MySQL local y concurrencia
 
@@ -128,6 +128,6 @@ El servidor aislado se inicializa sin contraseña administrativa para bootstrap 
 - [Resultados de verificación y errores corregidos](docs/verification.md).
 - [Inspección de esquema real y alternativa desde SSMS](docs/operations/sql-inspection.md).
 
-El transporte conserva decimales y fechas exactos como texto. El adaptador real `mssql` **rechaza tipos que el driver puede redondear**: decimal/numeric/money, datetime, datetimeoffset, time/datetime2 con precisión mayor a milisegundos, tipos alias y varchar con codificación no verificada. Se debe implementar y probar un adaptador sin pérdida después de inspeccionar el esquema real; los fixtures no demuestran compatibilidad con los SP reales.
+El transporte conserva decimales y fechas como texto. CASABLANCA usa metadatos `mssql` y un lector Windows SqlDataReader con `SqlDecimal`, precisión temporal de 100 ns y validación CP1252 para las dos collations observadas. El driver directo tedious conserva sus bloqueos de tipos que puede redondear. La [activación en TI y VPS](docs/operations/ti-agent.md) verifica el contrato revisado antes de la primera extracción real; no se modifican procedimientos ni tablas SQL Server. Los tests usan trabajadores ficticios; la conectividad y primera extracción reales se comprueban desde TI.
 
 FULL, SNAPSHOT_PERIOD, INCREMENTAL y BACKFILL se reservan en el diseño; el validador rechaza activarlos para estos SP. La ventana aproximada de tres días puede perder cambios durante una parada prolongada. Los SP originales se conservan intactos. El backend se despliega en el VPS y la tarea del agente se instala en la PC de TI; el equipo de desarrollo no mantiene una tarea registrada.

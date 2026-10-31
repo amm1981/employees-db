@@ -1,5 +1,13 @@
 # Revision del esquema de CASABLANCA
 
+## Actualización del 31 de octubre
+
+Se añadió `contracts/schemas/casablanca.reviewed-v1.json` con las mismas 37 columnas y versión `casablanca-v1`. El lector Windows SqlDataReader resuelve los 34 bloqueos del driver anterior: `GetSqlDecimal` conserva hasta 38 dígitos; DateTime/DateTimeOffset/TimeSpan conservan la precisión SQL; las dos collations CP1252 observadas tienen validación de representación y ancho en Node y PHP. Los 300 ticks de datetime dentro de un segundo vuelven al mismo valor SQL al serializarse a tres decimales. Las collations desconocidas siguen bloqueadas.
+
+La aprobación se activa explícitamente en TI y en el VPS mediante [los comandos de instalación](../operations/ti-agent.md). Los tests son sintéticos; la primera extracción y el número de recordsets reales se verifican desde TI. La revisión histórica siguiente conserva las restricciones detectadas originalmente con tedious.
+
+Referencias: [tipos SQL y accesores específicos ADO.NET](https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings), [GetSqlDecimal](https://learn.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqldatareader.getsqldecimal?view=netframework-4.8.1).
+
 Fecha: 29 de octubre de 2026 (America/Lima). Metadatos aportados por el usuario desde SSMS; no se han consultado filas de trabajadores ni ejecutado el SP de negocio desde el agente.
 
 ## Evidencia

@@ -58,6 +58,7 @@ export const schemaValidator = z
   })
   .strict();
 export type Schema = z.infer<typeof schemaValidator>;
+import { varcharBytes } from "./encoding.js";
 export type Cell = string | null;
 export type Row = Cell[];
 // Canonical v1: all scalar SQL values use strings or null; no JSON numbers in rows.
@@ -104,7 +105,7 @@ export function validateRow(row: unknown, s: Schema): asserts row is Row {
         ? Buffer.byteLength(v, "utf16le")
         : /binary/.test(t)
           ? v.length / 2
-          : Buffer.byteLength(v, "utf8");
+          : varcharBytes(v, c.collation);
       if (n > c.maxLength) throw new Error("ROW_SIZE");
     }
     if (/^(int|smallint|tinyint|bigint)$/.test(t)) {

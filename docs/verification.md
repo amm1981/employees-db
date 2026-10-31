@@ -1,5 +1,13 @@
 # Verificación de primera fase
 
+## Lectura exacta y activación: 31 de octubre de 2026
+
+- TypeScript compilado y 66 pruebas del agente aprobadas, incluyendo truncamiento del protocolo, falta de confirmación final, múltiples recordsets, CP1252 y activación local ligada al hash del contrato.
+- Lector .NET probado bajo Windows PowerShell 5.1 sin consultar SQL: numeric de 18 y 38 dígitos, cultura fr-FR, los 300 ticks de datetime por segundo, datetime2/time de siete decimales, offsets y las 256 posiciones CP1252.
+- Backend: 37 pruebas y 341 assertions aprobadas tanto en SQLite como en MySQL 8.4.7/InnoDB dedicado. Incluyen activación idempotente, conflictos de versión y recepción/publicación con el contrato real y valores ficticios.
+- E2E aprobado: formateador .NET → protocolo del agente → spool → Laravel HTTP → contrato CASABLANCA v1 → API de trabajadores autenticada. Conserva numeric(18,0), CP1252, ceros iniciales y duplicados. Todos los trabajadores son ficticios; no se ha ejecutado el SP de negocio en el equipo de desarrollo.
+- La activación de TI vuelve a inspeccionar metadatos, compara con el contrato revisado y guarda los archivos aprobados sólo en `.local`, sin modificar YAML ni secretos. El VPS tiene un comando explícito e independiente para habilitar el contrato.
+
 ## Agente de TI: 31 de octubre de 2026
 
 CASABLANCA configura repetición de 15 minutos. Se añadió `preflight` sin acceso a SQL/HTTP y preparación del agente para Windows sin dependencias PHP/MySQL. Compilación y 55 pruebas del agente aprobadas. El inicializador se probó con Windows PowerShell 5.1 en una carpeta temporal: crea un `.env` protegido con clave de 32 bytes y preserva el archivo en una segunda ejecución. Los scripts PowerShell pasan el parser.

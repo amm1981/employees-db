@@ -24,6 +24,7 @@
     "recover": "tsx agent/src/cli.ts recover",
     "inspect": "tsx agent/src/cli.ts inspect",
     "preflight": "tsx agent/src/cli.ts preflight",
+    "activate:casablanca": "node scripts/activate-casablanca.mjs",
     "unlock": "tsx agent/src/cli.ts unlock"
   },
   "devDependencies": {

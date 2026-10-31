@@ -67,7 +67,7 @@ El XML repite cada 15 minutos desde su primer inicio, con offset de Lima (-05:00
 
 La tarea usa `InteractiveToken` bajo la cuenta Windows actual, sin almacenar su contraseña. El equipo debe estar encendido, conectado a LAN/VPN y **con esa sesión iniciada**; bloquear la pantalla permite continuar, cerrar sesión no. Para funcionar también con la sesión cerrada hay que configurar una cuenta de servicio con acceso a SQL, red y secretos. La instalación no crea servicios ni cambia políticas globales.
 
-La configuración del repositorio conserva restricciones del esquema real. Registrar una tarea no aprueba ese esquema ni resuelve las 34 limitaciones de conversión detectadas. La prueba local de programación devolvió `2` y no ejecutó el SP ni transmitió información; esa tarea se retiró porque el destino correcto es la PC de TI.
+El repositorio conserva la activación pendiente hasta que el operador ejecute los comandos de TI y VPS. Registrar una tarea no activa el contrato. El lector exacto ya resuelve las 34 limitaciones originales de CASABLANCA. La prueba inicial de programación devolvió `2` y no ejecutó el SP ni transmitió información; esa tarea se retiró porque el destino correcto es la PC de TI.
 
 ## Backups y rollback
 

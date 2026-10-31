@@ -5,6 +5,7 @@ authorization: pending
 procedure: '[MarcacionesCB].[dbo].[spListarAltas_Bajas_Csb]'
 database: MarcacionesCB
 profile: private-lan
+extractionAdapter: dotnet
 parameters: []
 mode: ROLLING_WINDOW_CAPTURE
 schema: contracts/schemas/casablanca.pending.json

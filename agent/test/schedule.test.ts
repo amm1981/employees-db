@@ -47,7 +47,10 @@ describe("scheduled synchronization readiness", () => {
   });
 
   it("keeps a pending schema and unsupported conversions blocked even with credentials", async () => {
-    const c = (await loadIntegrations())[0]!;
+    const c = {
+      ...(await loadIntegrations())[0]!,
+      extractionAdapter: "tedious" as const,
+    };
     const result = assessSchedule(
       c,
       { status: "pending", schema: null },

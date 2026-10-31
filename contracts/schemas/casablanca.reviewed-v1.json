@@ -1,0 +1,345 @@
+{
+  "integrationId": "casablanca-altas-bajas",
+  "status": "reviewed",
+  "adapter": "dotnet",
+  "schemaHash": "fe45f5a9bc0f6b1216de750afc6fc67f91cba3c3e3cb9d2a6ecb5ea562af56f8",
+  "sourceMetadataHash": "e30fd773f9ccc5d0db7c60da4b0adfe19ff7db526e587ec79df8b390a8a21ecd",
+  "schema": {
+    "version": "casablanca-v1",
+    "columns": [
+      {
+        "name": "cod_empresa",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 2,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "cod_categoria",
+        "sqlType": "int",
+        "nullable": true,
+        "maxLength": 4,
+        "precision": 10,
+        "scale": 0,
+        "collation": null
+      },
+      {
+        "name": "cod_trabajador",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 20,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "apellido_pat",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "apellido_mat",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "Nombres",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 101,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "tipo_documento",
+        "sqlType": "int",
+        "nullable": false,
+        "maxLength": 4,
+        "precision": 10,
+        "scale": 0,
+        "collation": null
+      },
+      {
+        "name": "email",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 255,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "sexo",
+        "sqlType": "char",
+        "nullable": false,
+        "maxLength": 1,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "ID_EstadoCivil",
+        "sqlType": "int",
+        "nullable": false,
+        "maxLength": 4,
+        "precision": 10,
+        "scale": 0,
+        "collation": null
+      },
+      {
+        "name": "cod_nacionalidad",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "nacionalidad",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "tipo_trabajador",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 10,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "reloj",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 1,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "tipo_asistencia",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 1,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "Fnacimiento",
+        "sqlType": "datetime",
+        "nullable": false,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "cod_proyecto",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 2,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "area",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "area_desc",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "ccosto",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 12,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "uni_negocio",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 12,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "planilla",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 42,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "id_planilla",
+        "sqlType": "numeric",
+        "nullable": false,
+        "maxLength": 9,
+        "precision": 18,
+        "scale": 0,
+        "collation": null
+      },
+      {
+        "name": "planilla_desc",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "fotocheck",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 20,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "cod_sede",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "sede",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "cod_cargo",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "cargo",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "cod_funcion",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 100,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "funcion",
+        "sqlType": "varchar",
+        "nullable": true,
+        "maxLength": 50,
+        "precision": 0,
+        "scale": 0,
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      {
+        "name": "fingreso",
+        "sqlType": "datetime",
+        "nullable": false,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "fcese",
+        "sqlType": "datetime",
+        "nullable": true,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "estado",
+        "sqlType": "varchar",
+        "nullable": false,
+        "maxLength": 1,
+        "precision": 0,
+        "scale": 0,
+        "collation": "Modern_Spanish_CI_AS"
+      },
+      {
+        "name": "updpersonal",
+        "sqlType": "datetime",
+        "nullable": true,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "updagenda",
+        "sqlType": "datetime",
+        "nullable": true,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      },
+      {
+        "name": "updu",
+        "sqlType": "datetime",
+        "nullable": true,
+        "maxLength": 8,
+        "precision": 23,
+        "scale": 3,
+        "collation": null
+      }
+    ]
+  }
+}

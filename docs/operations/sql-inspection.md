@@ -1,5 +1,11 @@
 # Inspección del esquema de CASABLANCA
 
+## Actualización al 31 de octubre de 2026
+
+La PC de TI confirmó nuevamente el mismo hash y las 37 columnas. Se implementó el adaptador exacto Windows y el contrato `casablanca-v1`; seguir [la activación en TI/VPS](ti-agent.md). `npm run inspect` seguirá generando candidatos pendientes, sin aprobarlos automáticamente. El adaptador dotnet ya soporta los 34 tipos/codificaciones que el driver anterior bloqueaba.
+
+Por la instrucción expresa del usuario de confiar en el certificado SQL, el perfil tiene `inspectionTrustServerCertificate=true` y `extractionTrustServerCertificate=true`, siempre con cifrado. Ambas opciones predeterminan false si se omiten. La validación HTTPS permanece activa. Las notas del 29 de octubre que siguen describen el alcance histórico inicial, que era sólo inspección.
+
 ## Estado al 29 de octubre de 2026
 
 El usuario autorizó avanzar con la inspección de CASABLANCA y configuró las credenciales SQL en el `.env` privado. No se imprimieron ni se versionaron sus valores.

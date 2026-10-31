@@ -31,6 +31,7 @@ export function assessSchedule(
     try {
       adapterBlockers = new SqlExecutor().losslessIssues(
         validateSchema(schema),
+        c.extractionAdapter,
       ).length;
       if (adapterBlockers) blockers.push("LOSSLESS_ADAPTER_REQUIRED");
     } catch {

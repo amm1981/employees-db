@@ -28,6 +28,7 @@
       "type": "string",
       "const": "private-lan"
     },
+    "extractionAdapter": { "type": "string", "enum": ["tedious", "dotnet"] },
     "parameters": {
       "type": "array",
       "items": {

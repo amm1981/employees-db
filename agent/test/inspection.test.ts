@@ -91,16 +91,40 @@ describe("metadata-only inspection authorization", () => {
       "INTEGRATION_NOT_APPROVED",
     );
   });
-  it("keeps certificate validation for extraction even when inspection trusts the certificate", async () => {
+  it("uses the explicitly configured extraction certificate exception while keeping encryption", async () => {
     const c = (await loadIntegrations())[0]!;
     const { executor, factory, execute, pool } = mockDatabase();
     await executor.connect({ ...c, authorization: "approved" });
     expect(factory.mock.calls[0]![0].options).toMatchObject({
       encrypt: true,
-      trustServerCertificate: false,
+      trustServerCertificate: true,
     });
     expect(execute).not.toHaveBeenCalled();
     await pool.close();
+  });
+  it("keeps certificate validation when the extraction exception is disabled", async () => {
+    const c = (await loadIntegrations())[0]!;
+    const { executor, factory, pool } = mockDatabase();
+    const profiles = await executor.profiles();
+    profiles[c.profile]!.extractionTrustServerCertificate = false;
+    vi.spyOn(executor, "profiles").mockResolvedValue(profiles);
+    await executor.connect({ ...c, authorization: "approved" });
+    expect(factory.mock.calls[0]![0].options).toMatchObject({
+      encrypt: true,
+      trustServerCertificate: false,
+    });
+    await pool.close();
+  });
+  it("validates metadata and closes mssql before creating a lazy exact extraction stream", async () => {
+    const c = (await loadIntegrations())[0]!;
+    const { executor, execute, pool } = mockDatabase();
+    const source = await executor.source(
+      { ...c, authorization: "approved", extractionAdapter: "dotnet" },
+      fixtureSchema,
+    );
+    expect(source.schema).toEqual(fixtureSchema);
+    expect(execute.mock.calls).toEqual([["sys.sp_describe_first_result_set"]]);
+    expect(pool.close).toHaveBeenCalledOnce();
   });
   it("verifies the inspection certificate when its explicit exception is disabled", async () => {
     const c = (await loadIntegrations())[0]!;
@@ -178,7 +202,10 @@ describe("pending inspection artifacts", () => {
       path.join(os.tmpdir(), "get-employes-inspection-"),
     );
     directories.push(directory);
-    const c = (await loadIntegrations())[0]!;
+    const c = {
+      ...(await loadIntegrations())[0]!,
+      extractionAdapter: "tedious" as const,
+    };
     const first = await saveInspection(c, fixtureSchema, directory);
     const original = await readFile(first.file, "utf8");
     const second = await saveInspection(c, fixtureSchema, directory);

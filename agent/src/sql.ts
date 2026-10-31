@@ -8,6 +8,7 @@ import { canonical, type Row, type Schema } from "./contract.js";
 import type { Source } from "./spool.js";
 import { connectionErrorCode } from "./sql-errors.js";
 import { schemaFromMetadata } from "./metadata.js";
+import { dotnetSource } from "./dotnet-source.js";
 const profileSchema = z
   .object({
     serverEnv: z.string(),
@@ -17,6 +18,7 @@ const profileSchema = z
     encrypt: z.literal(true),
     trustServerCertificate: z.literal(false),
     inspectionTrustServerCertificate: z.boolean().default(false),
+    extractionTrustServerCertificate: z.boolean().default(false),
     connectionTimeoutMs: z.number().int().positive(),
   })
   .strict();
@@ -84,7 +86,9 @@ export class SqlExecutor {
       options: {
         encrypt: true,
         trustServerCertificate:
-          purpose === "inspection" && p.inspectionTrustServerCertificate,
+          purpose === "inspection"
+            ? p.inspectionTrustServerCertificate
+            : p.extractionTrustServerCertificate,
         useUTC: true,
       },
       arrayRowMode: true,
@@ -110,16 +114,30 @@ export class SqlExecutor {
       .execute("sys.sp_describe_first_result_set");
     return schemaFromMetadata(result.recordset);
   }
-  assertLossless(schema: Schema): void {
-    if (this.losslessIssues(schema).length)
+  assertLossless(
+    schema: Schema,
+    adapter: "tedious" | "dotnet" = "tedious",
+  ): void {
+    if (this.losslessIssues(schema, adapter).length)
       throw new Error("LOSSLESS_ADAPTER_REQUIRED");
   }
 
   losslessIssues(
     schema: Schema,
+    adapter: "tedious" | "dotnet" = "tedious",
   ): { column: string; sqlType: string; reason: string }[] {
     return schema.columns.flatMap((c) => {
       const t = c.sqlType.toLowerCase();
+      if (adapter === "dotnet") {
+        const reason =
+          /^(varchar|char|text)$/.test(t) &&
+          !["SQL_Latin1_General_CP1_CI_AS", "Modern_Spanish_CI_AS"].includes(
+            c.collation ?? "",
+          )
+            ? "SQL_ENCODING_NOT_VERIFIED"
+            : undefined;
+        return reason ? [{ column: c.name, sqlType: c.sqlType, reason }] : [];
+      }
       const reason = /^(decimal|numeric|money|smallmoney)$/.test(t)
         ? "DECIMAL_PRECISION_DRIVER"
         : t === "datetimeoffset"
@@ -142,10 +160,16 @@ export class SqlExecutor {
       actual.version = approved.version;
       if (canonical(actual) !== canonical(approved))
         throw new Error("SQL_SCHEMA_CHANGED");
-      this.assertLossless(actual);
+      this.assertLossless(actual, c.extractionAdapter);
     } catch (e) {
       await pool.close();
       throw e;
+    }
+    if (c.extractionAdapter === "dotnet") {
+      await pool.close();
+      const profile = (await this.profiles())[c.profile];
+      if (!profile) throw new Error("SQL_PROFILE_MISSING");
+      return dotnetSource(c, approved, profile);
     }
     const self = this;
     return {

@@ -31,7 +31,7 @@ Prueba de salud sin datos; rechazo anónimo; tokens de scope incorrecto; ingesta
 
 ## Dependencias y riesgos pendientes
 
-- La extracción Node usa mssql/tedious con SQL authentication explícita y TLS verificado. La inspección tiene una excepción de confianza de certificado solicitada por el usuario y documentada en la guía operativa; no se aplica al despliegue productivo. El árbol npm incluye Azure Identity de forma transitiva; se fija `@azure/msal-node=7.1.1` mediante override para evitar el aviso de seguridad del árbol resuelto inicialmente. Azure OAuth no está habilitado ni probado en esta fase. Revalidar el override al actualizar mssql/tedious.
+- CASABLANCA usa mssql para comprobar metadatos y SqlDataReader para la lectura exacta. Ambas conexiones SQL se cifran y tienen la excepción explícita de confianza de certificado solicitada por el usuario; HTTPS al VPS sigue validando su certificado. Las opciones de excepción predeterminan false si se omiten. El árbol npm incluye Azure Identity transitivo y fija `@azure/msal-node=7.1.1` por el aviso del árbol inicial; Azure OAuth no está habilitado. Revalidar el override al actualizar dependencias.
 - `npm audit` y Composer audit se ejecutaron; son resultados puntuales, no una garantía permanente. Repetir en CI antes de releases.
 - Las claves actuales de desarrollo sólo protegen fixtures. No se han cargado credenciales productivas.
 - No hay cursor fiable ni reparación automática de cambios fuera de la ventana. Una sincronización exitosa no garantiza padrón exhaustivo.

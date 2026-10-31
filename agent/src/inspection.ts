@@ -20,7 +20,7 @@ export async function saveInspection(
   if (registry[integration.id] !== integration.procedure)
     throw new Error("UNAUTHORIZED_PROCEDURE");
   const verified = validateSchema(schema);
-  const issues = new SqlExecutor().losslessIssues(verified);
+  const issues = new SqlExecutor().losslessIssues(verified, integration.extractionAdapter);
   const schemaHash = hash(canonical(verified));
   const inspectionId = randomUUID();
   const document = {

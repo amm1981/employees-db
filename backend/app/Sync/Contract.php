@@ -19,7 +19,7 @@ final class Contract
             abort_unless(is_string($v), 422, 'ROW_TYPE');
             $t = strtolower($c['sqlType']);
             if (preg_match('/^(n?varchar|n?char|binary|varbinary)$/', $t) && $c['maxLength'] >= 0) {
-                $size = str_starts_with($t, 'n') ? strlen(mb_convert_encoding($v, 'UTF-16LE', 'UTF-8')) : (str_contains($t, 'binary') ? strlen($v) / 2 : strlen($v));
+                $size = str_starts_with($t, 'n') ? strlen(mb_convert_encoding($v, 'UTF-16LE', 'UTF-8')) : (str_contains($t, 'binary') ? strlen($v) / 2 : SqlEncoding::varcharBytes($v, $c['collation']));
                 abort_if($size > $c['maxLength'], 422, 'ROW_SIZE');
             }
             if (in_array($t, ['int', 'bigint', 'smallint', 'tinyint'])) {

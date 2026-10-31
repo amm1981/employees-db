@@ -9,6 +9,7 @@ import { root, loadIntegrations } from "../agent/src/config.js";
 import { Spool, extract } from "../agent/src/spool.js";
 import { fixtureRows, fixtureSource } from "../agent/src/fixture.js";
 import { Transport } from "../agent/src/transport.js";
+import { decodeExactRows } from "../agent/src/dotnet-source.js";
 
 const repo = root(),
   php = process.env.PHP_BIN ?? "php";
@@ -45,6 +46,7 @@ const env = {
   SYNC_ALLOW_FIXTURES: "true",
   SQL_SOURCE_TIMEZONE: "UTC",
   API_CONSUMER_PASSWORD: randomBytes(32).toString("hex"),
+  SERVICE_TOKEN_NEW: randomBytes(32).toString("hex"),
 };
 const run = (args: string[]) =>
   execFileSync(php, args, {
@@ -60,8 +62,12 @@ run([
   "--secrets-file=" + path.join(dir, "tokens.json"),
 ]);
 run([
-  "artisan", "consumer:create", "e2e.reader",
-  "--dataset=casablanca-altas-bajas", "--simulation", "--no-interaction",
+  "artisan",
+  "consumer:create",
+  "e2e.reader",
+  "--dataset=casablanca-altas-bajas",
+  "--simulation",
+  "--no-interaction",
 ]);
 const port = await new Promise<number>((resolve) => {
   const server = net.createServer();
@@ -251,31 +257,130 @@ try {
   );
   // Exercise the actual JSON login and consumer window through the HTTP server.
   const recentRows = fixtureRows();
-  const recent = new Date(Date.now() - 24 * 3600_000).toISOString().replace(/Z$/, "");
+  const recent = new Date(Date.now() - 24 * 3600_000)
+    .toISOString()
+    .replace(/Z$/, "");
   recentRows[0]![36] = recent;
   recentRows[1]![36] = recent;
-  recentRows[2]![36] = new Date(Date.now() - 96 * 3600_000).toISOString().replace(/Z$/, "");
-  const consumerRun = await extract(spool, c, fixtureSource(false, recentRows), "fixture-agent", true);
+  recentRows[2]![36] = new Date(Date.now() - 96 * 3600_000)
+    .toISOString()
+    .replace(/Z$/, "");
+  const consumerRun = await extract(
+    spool,
+    c,
+    fixtureSource(false, recentRows),
+    "fixture-agent",
+    true,
+  );
   await t.send(spool, consumerRun.runId, c, true);
   const login = await read("/auth/login", "", "POST", {
-    username: "e2e.reader", password: env.API_CONSUMER_PASSWORD,
+    username: "e2e.reader",
+    password: env.API_CONSUMER_PASSWORD,
   });
   assert.equal(login.token_type, "Bearer");
   assert.equal(login.expires_in, 3600);
-  const employees = await read(`/employees?dataset=${c.id}`, login.access_token);
+  const employees = await read(
+    `/employees?dataset=${c.id}`,
+    login.access_token,
+  );
   assert.equal(employees.total, 2);
   assert.equal(employees.window.hours, 72);
   assert.deepEqual(employees.records[0].values, employees.records[1].values);
   assert.equal(employees.records[0].values.cod_trabajador, "00001234");
   assert.equal(Object.keys(employees.records[0].values).length, 37);
   const logout = await fetch(baseUrl + "/api/v1/auth/logout", {
-    method: "POST", headers: { Authorization: "Bearer " + login.access_token },
+    method: "POST",
+    headers: { Authorization: "Bearer " + login.access_token },
   });
   assert.equal(logout.status, 204);
   const expired = await fetch(baseUrl + `/api/v1/employees?dataset=${c.id}`, {
     headers: { Authorization: "Bearer " + login.access_token },
   });
   assert.equal(expired.status, 401);
+  if (process.platform === "win32") {
+    // Fully synthetic rows, formatted by the same .NET exact conversion layer.
+    const reviewed = JSON.parse(
+      await readFile(
+        path.join(repo, "contracts/schemas/casablanca.reviewed-v1.json"),
+        "utf8",
+      ),
+    );
+    const wire = execFileSync(
+      "powershell.exe",
+      [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        path.join(repo, "scripts/windows/Test-SqlExact.ps1"),
+        "-EmitFixture",
+      ],
+      { windowsHide: true },
+    );
+    const exactRows = [];
+    for await (const row of decodeExactRows(
+      (async function* () {
+        yield wire;
+      })(),
+      reviewed.schema,
+      100000,
+    ))
+      exactRows.push(row);
+    run(["artisan", "integration:activate", c.id]);
+    run([
+      "artisan",
+      "service-token:issue",
+      c.id,
+      "ti-pc-01",
+      "--scope=ingest",
+      "--scope=publish",
+    ]);
+    run([
+      "artisan",
+      "consumer:create",
+      "e2e.production",
+      "--dataset=" + c.id,
+      "--no-interaction",
+    ]);
+    const production = { ...c, publicationEnabled: true };
+    const capture = await extract(
+      spool,
+      production,
+      {
+        schema: reviewed.schema,
+        rows: (async function* () {
+          yield* exactRows;
+        })(),
+      },
+      "ti-pc-01",
+      false,
+    );
+    const sender = new Transport({
+      ...options,
+      baseUrl: "https://receiver.example.invalid",
+      simulation: false,
+      token: env.SERVICE_TOKEN_NEW,
+      fetcher: (input, init) => {
+        const url = new URL(String(input));
+        assert.equal(url.hostname, "receiver.example.invalid");
+        return fetch(baseUrl + url.pathname + url.search, init);
+      },
+    });
+    await sender.send(spool, capture.runId, production, true);
+    const session = await read("/auth/login", "", "POST", {
+      username: "e2e.production",
+      password: env.API_CONSUMER_PASSWORD,
+    });
+    const result = await read(
+      `/employees?dataset=${c.id}`,
+      session.access_token,
+    );
+    assert.equal(result.total, 2);
+    assert.equal(result.records[0].values.id_planilla, "999999999999999999");
+    assert.equal(result.records[0].values.Nombres, "Ficticio ñá €");
+    assert.equal(result.records[0].values.cod_trabajador, "00001234");
+    assert.deepEqual(result.records[0].values, result.records[1].values);
+  }
   console.log(
     JSON.stringify(
       {
@@ -291,6 +396,11 @@ try {
           "anonymous access denied",
           "compiled CLI sync, resume, status and recovery",
           "JSON login → consumer Bearer token → last 72 hours → logout revocation",
+          ...(process.platform === "win32"
+            ? [
+                ".NET exact formatter → CASABLANCA v1 production contract → HTTP → authenticated employee API (synthetic rows)",
+              ]
+            : []),
         ],
         runs: [m.runId, next.runId, dm.runId],
       },

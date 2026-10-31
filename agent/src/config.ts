@@ -2,7 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import YAML from "yaml";
 import { z } from "zod";
-import { validateSchema, type Schema } from "./contract.js";
+import { canonical, hash, validateSchema, type Schema } from "./contract.js";
 export const registry: Record<string, string> = {
   "casablanca-altas-bajas": "[MarcacionesCB].[dbo].[spListarAltas_Bajas_Csb]",
   "diamond-bridge-altas-bajas":
@@ -17,6 +17,7 @@ export const integrationValidator = z
     procedure: z.string(),
     database: z.literal("MarcacionesCB"),
     profile: z.literal("private-lan"),
+    extractionAdapter: z.enum(["tedious", "dotnet"]).default("tedious"),
     parameters: z.array(z.never()),
     mode: z.literal("ROLLING_WINDOW_CAPTURE"),
     schema: z.string(),
@@ -72,14 +73,57 @@ export async function loadIntegrations(): Promise<Integration[]> {
       .filter((n) => n.endsWith(".yaml"))
       .sort()
       .map(async (f) =>
-        integrationValidator.parse(
-          YAML.parse(await readFile(path.join(dir, f), "utf8")),
+        applyLocalActivation(
+          integrationValidator.parse(
+            YAML.parse(await readFile(path.join(dir, f), "utf8")),
+          ),
         ),
       ),
   );
   if (new Set(result.map((i) => i.id)).size !== result.length)
     throw new Error("DUPLICATE_INTEGRATION");
   return result;
+}
+export async function applyLocalActivation(
+  c: Integration,
+  directory = root(),
+): Promise<Integration> {
+  const activationFile = path.join(
+    directory,
+    ".local/activation",
+    c.id + ".json",
+  );
+  let raw: string;
+  try {
+    raw = await readFile(activationFile, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return c;
+    throw error;
+  }
+  if (c.id !== "casablanca-altas-bajas")
+    throw new Error("COMPANY_CODE_PENDING");
+  const activation = z
+    .object({ schemaHash: z.string().regex(/^[0-9a-f]{64}$/) })
+    .strict()
+    .parse(JSON.parse(raw));
+  const schemaPath = ".local/approved/" + c.id + ".json";
+  const approved = JSON.parse(
+    await readFile(path.join(directory, schemaPath), "utf8"),
+  );
+  const schema = validateSchema(approved.schema);
+  if (
+    approved.status !== "approved" ||
+    approved.integrationId !== c.id ||
+    approved.schemaHash !== activation.schemaHash ||
+    hash(canonical(schema)) !== activation.schemaHash
+  )
+    throw new Error("LOCAL_ACTIVATION_INVALID");
+  return integrationValidator.parse({
+    ...c,
+    schema: schemaPath,
+    authorization: "approved",
+    publicationEnabled: true,
+  });
 }
 export async function approvedSchema(c: Integration): Promise<Schema> {
   const manifest = JSON.parse(
