@@ -85,6 +85,18 @@ npm run resume -- --run <runId_obtenido> --publish
 
 Sólo después de `transfer_complete`, registrar la tarea. Si la extracción falla, el spool queda sin sellar y no se envía nada. Revisar el error antes de reintentar; no borrar capturas automáticamente. El resultado vacío continúa bloqueado por defecto.
 
+Si una versión anterior devuelve `SQL_BRIDGE_FAILED`, actualizar y ejecutar la prueba offline del lector antes de repetir la extracción:
+
+```powershell
+git pull --ff-only
+npm run build
+powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File scripts\windows\Test-SqlExact.ps1
+```
+
+Se corrigió la doble lectura de texto/binarios en `SequentialAccess`: ya no se consulta longitud con `GetChars`/`GetBytes` para luego llamar a `GetValue` sobre la misma columna. El lector consume bloques una sola vez y comprueba los límites durante la lectura, incluso cuando el tamaño es desconocido. Las excepciones inesperadas indican etapa y categoría mediante códigos fijos, por ejemplo `SQL_BRIDGE_READ_CELL_0_INVALID_OPERATION`, sin mensajes del proveedor ni valores de filas. Se conservan las comprobaciones del esquema y los tipos exactos.
+
+Antes de habilitar la tarea, revisar cada captura fallida y, con el agente detenido, mover sólo su directorio UUID sin sellar a `.local/quarantine`, fuera de `.local/spool`. Conservar sus archivos cifrados y la clave. `recover` seguirá bloqueado mientras haya capturas incompletas dentro del spool; una captura sin manifiesto no puede reanudarse ni publicarse. Ver [recuperación de fallos](runbook.md#fallos).
+
 Después de completar la configuración, registrar la tarea **en TI**:
 
 ```cmd

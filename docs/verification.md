@@ -1,5 +1,11 @@
 # Verificación de primera fase
 
+## Corrección de lectura secuencial: 31 de octubre de 2026
+
+El primer intento real en TI terminó con `SQL_BRIDGE_FAILED` y captura sin sellar. La revisión detectó que la comprobación de longitud con `GetChars` seguida de `GetValue` releía una columna ya consumida en modo `SequentialAccess`. La [implementación de referencia de SqlDataReader](https://github.com/microsoft/referencesource/blob/main/System.Data/System/Data/SqlClient/SqlDataReader.cs) confirma esa restricción. Se reemplazó por lectura incremental de texto/binarios con offsets crecientes y límites durante la lectura.
+
+La regresión offline simula acceso secuencial estricto, reproduce el rechazo del patrón anterior y prueba texto CP1252, Unicode dividido entre bloques, espacios finales, cadenas/binarios vacíos, nulos, cero, lecturas cortas, valores grandes y límites exactos/excedidos. Comprueba que las excepciones se reduzcan a categorías fijas sin exponer mensajes privados. No abre SQL. Windows PowerShell 5.1, compilación TypeScript, 67 pruebas del agente y E2E HTTP con PHP 8.3.28 aprobados. La conexión real corregida debe confirmarse en TI antes de programar la tarea.
+
 ## Lectura exacta y activación: 31 de octubre de 2026
 
 - TypeScript compilado y 66 pruebas del agente aprobadas, incluyendo truncamiento del protocolo, falta de confirmación final, múltiples recordsets, CP1252 y activación local ligada al hash del contrato.

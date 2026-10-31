@@ -60,6 +60,16 @@ describe("exact SQL bridge", () => {
     altered.columns[0].collation = "unknown-code-page";
     expect(new SqlExecutor().losslessIssues(altered, "dotnet")).toHaveLength(1);
   });
+  it("preserves safe bridge diagnostics and discards arbitrary error text", async () => {
+    await expect(
+      collect(
+        '{"kind":"error","code":"SQL_BRIDGE_READ_CELL_0_INVALID_OPERATION"}\n',
+      ),
+    ).rejects.toThrow("SQL_BRIDGE_READ_CELL_0_INVALID_OPERATION");
+    await expect(
+      collect('{"kind":"error","code":"password=synthetic-private-value"}\n'),
+    ).rejects.toThrow("SQL_EXTRACTION_FAILED");
+  });
   it("counts CP1252 bytes rather than UTF8 and rejects unrepresentable text", () => {
     expect(varcharBytes("ñá € —", "Modern_Spanish_CI_AS")).toBe(6);
     expect(() => varcharBytes("漢", "Modern_Spanish_CI_AS")).toThrow(

@@ -1,6 +1,7 @@
 param([switch]$EmitFixture)
 $ErrorActionPreference = 'Stop'
-Add-Type -Path (Join-Path $PSScriptRoot 'SqlExactReader.cs') -ReferencedAssemblies System.Data,System.Web.Extensions,System.Xml
+Add-Type -Path @((Join-Path $PSScriptRoot 'SqlExactReader.cs'), (Join-Path $PSScriptRoot 'SqlExactReaderTests.cs')) -ReferencedAssemblies System.Data,System.Web.Extensions,System.Xml
+[GetEmployes.SqlExactReaderTests]::Run()
 $invariant = [Globalization.CultureInfo]::InvariantCulture
 $originalCulture = [Threading.Thread]::CurrentThread.CurrentCulture
 try {
@@ -31,7 +32,7 @@ try {
             [GetEmployes.SqlExactReader]::ValidateText($character, $column)
         }
     }
-    if (-not $EmitFixture) { Write-Output 'PASS: SQL numeric(38), all 300 datetime ticks, datetime2/time(7), offsets and CP1252; no SQL connection opened.' }
+    if (-not $EmitFixture) { Write-Output 'PASS: sequential text/binary reads, row bounds, sanitized failures, SQL numeric(38), all 300 datetime ticks, datetime2/time(7), offsets and CP1252; no SQL connection opened.' }
 } finally {
     [Threading.Thread]::CurrentThread.CurrentCulture = $originalCulture
 }

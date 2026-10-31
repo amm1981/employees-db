@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Web.Script.Serialization;
@@ -89,6 +90,67 @@ namespace GetEmployes
                 if (column.sqlType != "text" && column.maxLength >= 0 && bytes.Length > column.maxLength) throw new ExactFailure("ROW_SIZE");
             }
         }
+        // GetChars/GetBytes consume the column in SequentialAccess mode. Never
+        // follow a length probe with GetValue on that same column. Stream once,
+        // with a bounded buffer, including values whose length is unknown (MAX).
+        public static string ReadCell(IDataRecord reader, int ordinal, ExactColumn column, int remaining)
+        {
+            if (remaining < 0) throw new ExactFailure("ROW_SIZE");
+            if (reader.IsDBNull(ordinal))
+            {
+                if (!column.nullable) throw new ExactFailure("ROW_NULL");
+                return null;
+            }
+            string value;
+            if (Text(column.sqlType))
+            {
+                char[] buffer = new char[Math.Min(4096, remaining + 1)];
+                StringBuilder text = new StringBuilder();
+                long offset = 0, count;
+                while ((count = reader.GetChars(ordinal, offset, buffer, 0, Math.Min(buffer.Length, remaining - text.Length + 1))) != 0)
+                {
+                    if (count > remaining - text.Length) throw new ExactFailure("ROW_SIZE");
+                    text.Append(buffer, 0, (int)count);
+                    offset += count;
+                }
+                value = text.ToString();
+                ValidateText(value, column);
+            }
+            else if (Binary(column.sqlType))
+            {
+                int limit = remaining / 2;
+                byte[] buffer = new byte[Math.Min(4096, limit + 1)];
+                using (MemoryStream bytes = new MemoryStream())
+                {
+                    long count;
+                    while ((count = reader.GetBytes(ordinal, bytes.Length, buffer, 0, (int)Math.Min(buffer.Length, limit - bytes.Length + 1))) != 0)
+                    {
+                        if (count > limit - bytes.Length) throw new ExactFailure("ROW_SIZE");
+                        bytes.Write(buffer, 0, (int)count);
+                    }
+                    value = Format(bytes.ToArray(), column.sqlType, column.scale);
+                }
+            }
+            else
+            {
+                object raw = column.sqlType == "decimal" || column.sqlType == "numeric" ? (object)((SqlDataReader)reader).GetSqlDecimal(ordinal) : reader.GetValue(ordinal);
+                value = Format(raw, column.sqlType, column.scale);
+            }
+            if (value.Length > remaining) throw new ExactFailure("ROW_SIZE");
+            return value;
+        }
+        public static string FailureCode(Exception error)
+        {
+            // This fixed vocabulary must never include exception messages,
+            // connection strings, server addresses or worker values.
+            if (error is InvalidOperationException) return "INVALID_OPERATION";
+            if (error is InvalidCastException) return "INVALID_CAST";
+            if (error is ArgumentException) return "ARGUMENT";
+            if (error is FormatException) return "FORMAT";
+            if (error is OverflowException) return "OVERFLOW";
+            if (error is IOException) return "IO";
+            return "UNEXPECTED";
+        }
         static void ValidateRecordset(SqlDataReader reader, ExactSchema schema)
         {
             if (reader.FieldCount != Names.Length || schema.columns.Length != Names.Length) throw new ExactFailure("SQL_RECORDSET_CHANGED");
@@ -126,6 +188,7 @@ namespace GetEmployes
             Console.OutputEncoding = new UTF8Encoding(false, true);
             JavaScriptSerializer json = new JavaScriptSerializer();
             json.MaxJsonLength = 16 * 1024 * 1024;
+            string stage = "CONFIG";
             try
             {
                 ExactConfig c = json.Deserialize<ExactConfig>(input);
@@ -147,16 +210,20 @@ namespace GetEmployes
                 options.ConnectTimeout = (int)Math.Ceiling(c.connectionTimeoutMs / 1000.0);
                 using (SqlConnection connection = new SqlConnection(options.ConnectionString))
                 {
+                    stage = "CONNECT";
                     connection.Open();
                     using (SqlCommand command = new SqlCommand(allowed, connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
                         command.CommandTimeout = (int)Math.Ceiling(c.timeoutMs / 1000.0);
+                        stage = "EXECUTE";
                         using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess))
                         {
+                            stage = "RECORDSET";
                             ValidateRecordset(reader, c.schema);
                             Console.Out.WriteLine("{\"kind\":\"ready\"}");
                             long count = 0;
+                            stage = "READ_ROW";
                             while (reader.Read())
                             {
                                 string[] values = new string[Names.Length];
@@ -164,23 +231,18 @@ namespace GetEmployes
                                 for (int i = 0; i < values.Length; i++)
                                 {
                                     ExactColumn col = c.schema.columns[i];
-                                    if (reader.IsDBNull(i))
-                                    {
-                                        if (!col.nullable) throw new ExactFailure("ROW_NULL");
-                                        continue;
-                                    }
-                                    if (Text(col.sqlType) && reader.GetChars(i, 0, null, 0, 0) > c.rowLimit - characters) throw new ExactFailure("ROW_SIZE");
-                                    if (Binary(col.sqlType) && reader.GetBytes(i, 0, null, 0, 0) > (c.rowLimit - characters) / 2) throw new ExactFailure("ROW_SIZE");
-                                    object value = col.sqlType == "decimal" || col.sqlType == "numeric" ? (object)reader.GetSqlDecimal(i) : reader.GetValue(i);
-                                    values[i] = Format(value, col.sqlType, col.scale);
-                                    if (Text(col.sqlType)) ValidateText(values[i], col);
-                                    characters += values[i].Length;
-                                    if (characters > c.rowLimit) throw new ExactFailure("ROW_SIZE");
+                                    stage = "READ_CELL_" + i;
+                                    values[i] = ReadCell(reader, i, col, c.rowLimit - characters);
+                                    if (values[i] != null) characters += values[i].Length;
                                 }
+                                stage = "SERIALIZE";
                                 Console.Out.WriteLine(json.Serialize(new { kind = "row", values = values }));
                                 count++;
+                                stage = "READ_ROW";
                             }
+                            stage = "NEXT_RESULT";
                             if (reader.NextResult()) throw new ExactFailure("MULTIPLE_RECORDSETS");
+                            stage = "COMPLETE";
                             Console.Out.WriteLine(json.Serialize(new { kind = "complete", count = count }));
                             Console.Out.Flush();
                         }
@@ -191,7 +253,7 @@ namespace GetEmployes
             catch (ExactFailure error) { Console.Out.WriteLine(json.Serialize(new { kind = "error", code = error.Message })); }
             catch (EncoderFallbackException) { Console.Out.WriteLine("{\"kind\":\"error\",\"code\":\"SQL_ENCODING_ROUNDTRIP\"}"); }
             catch (SqlException error) { Console.Out.WriteLine(json.Serialize(new { kind = "error", code = error.Number == 18456 ? "SQL_ELOGIN" : error.Number == -2 ? "SQL_REQUEST_TIMEOUT" : "SQL_EXTRACTION_FAILED" })); }
-            catch { Console.Out.WriteLine("{\"kind\":\"error\",\"code\":\"SQL_BRIDGE_FAILED\"}"); }
+            catch (Exception error) { Console.Out.WriteLine(json.Serialize(new { kind = "error", code = "SQL_BRIDGE_" + stage + "_" + FailureCode(error) })); }
             return 1;
         }
     }
